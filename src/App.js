@@ -1,4 +1,4 @@
-import { getBestGearPath } from "./Gearing";
+import { getBestGearPath, getRemainingGears } from "./Gearing";
 import Chart from "./Chart";
 import { useEffect, useRef, useState } from "react";
 
@@ -23,8 +23,15 @@ function App() {
   const [cassette, setCassette] = useState([
     11, 13, 15, 17, 19, 22, 25, 28, 32, 36,
   ]);
-  const bestPath = getBestGearPath(chainrings, cassette);
+  const [useBestPath, setUseBestPath] = useState(true);
+  const [sortRatios, setSortRatios] = useState(true);
+  const bestPath = useBestPath
+    ? getBestGearPath(chainrings, cassette)
+    : getRemainingGears([], chainrings, cassette.slice().reverse());
   const gears = bestPath.map((g) => calcs(g, false));
+  if (!useBestPath && sortRatios) {
+    gears.sort((a, b) => a.ratio - b.ratio);
+  }
 
   return (
     <>
@@ -54,6 +61,26 @@ function App() {
       <div>
         <ArrayInput value={chainrings} onChange={setChainrings} />
         <ArrayInput value={cassette} onChange={setCassette} />
+      </div>
+      <div>
+        <label>
+          Exclude redundant gears?
+          <input
+            type="checkbox"
+            checked={useBestPath}
+            onChange={(event) => setUseBestPath(event.target.checked)}
+          />
+        </label>
+        {!useBestPath && (
+          <label>
+            Sort gears?
+            <input
+              type="checkbox"
+              checked={sortRatios}
+              onChange={(event) => setSortRatios(event.target.checked)}
+            />
+          </label>
+        )}
       </div>
       <div>
         Gear Range:{" "}
