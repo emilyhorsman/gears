@@ -1,10 +1,11 @@
 import "./App.css";
-import { BarRounded, Line } from "@visx/shape";
+import { Bar, BarRounded, Line } from "@visx/shape";
 import { Group } from "@visx/group";
 import { scaleBand, scaleLinear } from "@visx/scale";
 import { Grid } from "@visx/grid";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { localPoint } from "@visx/event";
+import { PatternLines } from "@visx/pattern";
 import { useState } from "react";
 import { getBestGearPath, getRemainingGears } from "./Gearing";
 
@@ -107,6 +108,14 @@ function App() {
   return (
     <>
       <svg width={WIDTH} height={HEIGHT}>
+        <PatternLines
+          id="lines"
+          height={10}
+          width={10}
+          stroke="#00282E"
+          strokeWidth={1}
+          orientation={["diagonal", "diagonalRightToLeft"]}
+        />
         <Group left={MARGIN.left} top={MARGIN.top}>
           <Grid
             xScale={xScale}
@@ -128,6 +137,18 @@ function App() {
             numTicks={gears.length}
             tickComponent={LeftTickLabel}
           />
+          {hoveredDatum && (
+            <Bar
+              x={xScale(hoveredDatum.speedAt1RPM * minRPM)}
+              y={0}
+              height={yMax}
+              width={
+                xScale(hoveredDatum.speedAt1RPM * maxRPM) -
+                xScale(hoveredDatum.speedAt1RPM * minRPM)
+              }
+              fill="url('#lines')"
+            />
+          )}
           {gears.map((gear, index) => {
             const x0 = xScale(gear.speedAt1RPM * (index === 0 ? 50 : minRPM));
             const x1 = xScale(gear.speedAt1RPM * maxRPM);
