@@ -247,7 +247,7 @@ const LeftTickLabel =
         textAnchor="end"
         x={x}
         y={y}
-        scaleToFit={true}
+        fontSize={13}
         verticalAnchor="middle"
         width={margin.left - 20}
       >

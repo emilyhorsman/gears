@@ -1,5 +1,6 @@
 import { getBestGearPath } from "./Gearing";
 import Chart from "./Chart";
+import { useState } from "react";
 
 function calcs(gear, redundant) {
   const { front, rear, ratio } = gear;
@@ -14,16 +15,43 @@ const bestPath = getBestGearPath(chainrings, cassette);
 const gears = bestPath.map((g) => calcs(g, false));
 
 function App() {
+  const [minRPM, setMinRPM] = useState(85);
+  const [maxRPM, setMaxRPM] = useState(100);
   return (
-    <Chart
-      gears={gears}
-      bailOutRPM={50}
-      minRPM={85}
-      maxRPM={100}
-      margin={{ top: 40, right: 10, bottom: 50, left: 60 }}
-      width={1000}
-      height={500}
-    />
+    <>
+      <div>
+        RPM:
+        <input
+          type="number"
+          value={minRPM}
+          onChange={(event) => {
+            setMinRPM(event.target.value);
+          }}
+          min={50}
+          max={maxRPM}
+          step={1}
+        />
+        <input
+          type="number"
+          value={maxRPM}
+          onChange={(event) => {
+            setMaxRPM(event.target.value);
+          }}
+          min={minRPM + 5}
+          max={120}
+          step={1}
+        />
+      </div>
+      <Chart
+        gears={gears}
+        bailOutRPM={50}
+        minRPM={minRPM}
+        maxRPM={maxRPM}
+        margin={{ top: 40, right: 10, bottom: 50, left: 60 }}
+        width={1000}
+        height={400}
+      />
+    </>
   );
 }
 
