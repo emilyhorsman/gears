@@ -67,9 +67,9 @@ const findDatum = (point) => {
 };
 
 const palette = [
-  { hover: "#00282E", best: "#26C6DA", redundant: "#D4F4F8" },
-  { hover: "#00282E", best: "#006C7A", redundant: "#6BEFF9" },
-  { hover: "#00282E", best: "#004851", redundant: "#00BED6" },
+  { hover: "#00282E", best: "#26C6DA", redundant: "#26C6DA" },
+  { hover: "#00282E", best: "#006C7A", redundant: "#006C7A" },
+  { hover: "#00282E", best: "#004851", redundant: "#004851" },
 ];
 const barColors = chainrings.reduce(
   (obj, front, index) => ({
