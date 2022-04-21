@@ -4,6 +4,9 @@ import { Group } from '@visx/group';
 import { scaleBand, scaleLinear } from '@visx/scale';
 import { Grid } from '@visx/grid';
 import { AxisBottom, AxisLeft } from '@visx/axis';
+import { localPoint } from '@visx/event';
+import { useState } from 'react';
+import { useTooltip, Tooltip } from '@visx/tooltip';
 
 const HEIGHT = 500;
 const WIDTH = 1000;
@@ -58,38 +61,78 @@ const yScale = scaleBand({
   domain: gears.map(gear => gear.label),
   padding: 0.1
 })
-console.log(gears.map(gear => ({...gear, speed: gear.speedAt1RPM * 80})))
+
+const findDatum = point => {
+  const x = point.x - MARGIN.left;
+  const y = point.y - MARGIN.top;
+  return gears.find(gear => {
+    const x0 = xScale(gear.speedAt1RPM * minRPM);
+    const x1 = xScale(gear.speedAt1RPM * maxRPM);
+    if (x < x0 || x > x1) {
+      return false;
+    }
+    const y0 = yScale(gear.label);
+    const y1 = y0 + yScale.bandwidth();
+    return y >= y0 && y <= y1;
+  })
+}
 
 function App() {
+  const {
+    tooltipData,
+    tooltipLeft,
+    tooltipTop,
+    tooltipOpen,
+    showTooltip,
+    hideTooltip,
+  } = useTooltip();
+
   return (
-    <svg width={WIDTH} height={HEIGHT}>
-      <Group left={MARGIN.left} top={MARGIN.top}>
-        <Grid
-          xScale={xScale}
-          yScale={yScale}
-          width={xMax}
-          height={yMax}
-          numTicksRows={gears.length}
-          numTicksColumns={60 / xStep}
-        />
-        <AxisBottom scale={xScale} top={yMax} />
-        <AxisLeft scale={yScale} numTicks={gears.length} />
-        {gears.map(gear => {
-          const x0 = xScale(gear.speedAt1RPM * minRPM);
-          const x1 = xScale(gear.speedAt1RPM * maxRPM);
-          return (
-            <Bar
-              key={`bar-${gear.front}-${gear.rear}`}
-              x={x0}
-              y={yScale(gear.label)}
-              height={yScale.bandwidth()}
-              width={x1 - x0}
-              fill="#000"
-            />
-          )
-        })}
-      </Group>
-    </svg>
+    <>
+      <svg width={WIDTH} height={HEIGHT}>
+        <Group left={MARGIN.left} top={MARGIN.top}>
+          <Grid
+            xScale={xScale}
+            yScale={yScale}
+            width={xMax}
+            height={yMax}
+            numTicksRows={gears.length}
+            numTicksColumns={60 / xStep}
+          />
+          <AxisBottom scale={xScale} top={yMax} />
+          <AxisLeft scale={yScale} numTicks={gears.length} />
+          {gears.map(gear => {
+            const x0 = xScale(gear.speedAt1RPM * minRPM);
+            const x1 = xScale(gear.speedAt1RPM * maxRPM);
+            const isHovered = gear.label === tooltipData?.label;
+            return (
+              <Bar
+                key={`bar-${gear.front}-${gear.rear}`}
+                x={x0}
+                y={yScale(gear.label)}
+                height={yScale.bandwidth()}
+                width={x1 - x0}
+                fill={isHovered ? "blue" : "#000"}
+              />
+            )
+          })}
+        </Group>
+        <rect width={WIDTH} height={HEIGHT} fill="transparent" onMouseMove={event => {
+          const point = localPoint(event);
+          const datum = findDatum(point);
+          if (!datum) {
+            hideTooltip();
+            return;
+          }
+          showTooltip({
+            tooltipLeft: event.clientX,
+            tooltipTop: event.clientY,
+            tooltipData: datum,
+          })
+        }} onMouseLeave={() => hideTooltip()} />
+      </svg>
+      {tooltipOpen && <Tooltip top={tooltipTop} left={tooltipLeft}>woo</Tooltip>}
+    </>
   );
 }
 
