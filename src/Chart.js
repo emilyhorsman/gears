@@ -11,6 +11,7 @@ import { Fragment, useState } from "react";
 const xStep = 5;
 const blue = "#2E78D2";
 const navy = "#112E51";
+const lightestBlue = "#C1D7F2";
 
 function Chart(props) {
   const { gears, bailOutRPM, minRPM, maxRPM, margin, width, height } = props;
@@ -60,39 +61,14 @@ function Chart(props) {
               {...{ xScale, yScale, minRPM, maxRPM, yMax }}
             />
           )}
-          {gears.map((gear, index) => {
-            const xClimb = xScale(gear.speedAt1RPM * 50);
-            const x0 = xScale(gear.speedAt1RPM * minRPM);
-            const x1 = xScale(gear.speedAt1RPM * maxRPM);
-            return (
-              <Fragment key={`bar-${gear.front}-${gear.rear}`}>
-                {index === 0 && (
-                  <BarRounded
-                    x={xClimb}
-                    y={yScale(gear.label)}
-                    height={yScale.bandwidth()}
-                    radius={5}
-                    bottomLeft={true}
-                    topRight={true}
-                    all={gear.redundant}
-                    width={x1 - xClimb}
-                    fill="#6BEFF9"
-                  />
-                )}
-                <BarRounded
-                  x={x0}
-                  y={yScale(gear.label)}
-                  height={yScale.bandwidth()}
-                  radius={5}
-                  bottomLeft={true}
-                  topRight={true}
-                  all={gear.redundant}
-                  width={x1 - x0}
-                  fill={gear === curGear ? navy : blue}
-                />
-              </Fragment>
-            );
-          })}
+          <GearRPMSpeedBars
+            gears={gears}
+            xScale={xScale}
+            yScale={yScale}
+            minRPM={minRPM}
+            maxRPM={maxRPM}
+            curGear={curGear}
+          />
           <SpinOutGear
             gears={gears}
             xScale={xScale}
@@ -125,6 +101,44 @@ function Chart(props) {
           onMouseLeave={() => setCurGear(null)}
         />
       </svg>
+    </>
+  );
+}
+
+function GearRPMSpeedBars({ gears, xScale, yScale, minRPM, maxRPM, curGear }) {
+  return (
+    <>
+      {gears.map((gear, index) => {
+        const xClimb = xScale(gear.speedAt1RPM * 50);
+        const x0 = xScale(gear.speedAt1RPM * minRPM);
+        const x1 = xScale(gear.speedAt1RPM * maxRPM);
+        return (
+          <Fragment key={`bar-${gear.front}-${gear.rear}`}>
+            {index === 0 && (
+              <BarRounded
+                x={xClimb}
+                y={yScale(gear.label)}
+                height={yScale.bandwidth()}
+                radius={5}
+                bottomLeft={true}
+                topRight={true}
+                width={x1 - xClimb}
+                fill={lightestBlue}
+              />
+            )}
+            <BarRounded
+              x={x0}
+              y={yScale(gear.label)}
+              height={yScale.bandwidth()}
+              radius={5}
+              bottomLeft={true}
+              topRight={true}
+              width={x1 - x0}
+              fill={gear === curGear ? navy : blue}
+            />
+          </Fragment>
+        );
+      })}
     </>
   );
 }
