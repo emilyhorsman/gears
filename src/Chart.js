@@ -11,6 +11,7 @@ import { Fragment, useState } from "react";
 const xStep = 5;
 const blue = "#2E78D2";
 const navy = "#112E51";
+const rangePadding = 40;
 
 function Chart(props) {
   const { gears, bailOutRPM, minRPM, maxRPM, margin, width, height } = props;
@@ -48,6 +49,7 @@ function Chart(props) {
             tickComponent={BottomTickLabel}
             label="Speed (kmh)"
             labelProps={{ fontSize: 13 }}
+            rangePadding={rangePadding}
           />
           <AxisLeft
             scale={yScale}
@@ -90,6 +92,16 @@ function Chart(props) {
                   width={x1 - x0}
                   fill={gear === curGear ? navy : blue}
                 />
+                <Text
+                  x={xScale.range()[0] - rangePadding}
+                  y={yScale(gear.label) + yScale.bandwidth() / 2}
+                  verticalAnchor="middle"
+                  fontSize={13}
+                  dx="0.25em"
+                  dy="-0.1em"
+                >
+                  {gear.gearInchesLabel}
+                </Text>
               </Fragment>
             );
           })}
@@ -288,7 +300,7 @@ function findDatum(point, { gears, xScale, yScale, minRPM, maxRPM, margin }) {
 
 function speedScale({ gears, bailOutRPM, maxRPM, width, margin }) {
   return scaleLinear({
-    range: [0, width - margin.left - margin.right],
+    range: [rangePadding, width - margin.left - margin.right],
     domain: [
       Math.floor(
         Math.min(...gears.map((gear) => gear.speedAt1RPM * bailOutRPM)) / xStep

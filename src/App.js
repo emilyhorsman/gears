@@ -6,7 +6,14 @@ function calcs(gear, redundant) {
   const { front, rear, ratio } = gear;
   const development = Math.PI * 0.68 * ratio;
   const speedAt1RPM = (development * 60) / 1000;
-  return { ...gear, speedAt1RPM, label: `${front}/${rear}t`, redundant };
+  const gearInches = 0.68 * 39.3701 * ratio;
+  return {
+    ...gear,
+    speedAt1RPM,
+    label: `${front}/${rear}t`,
+    gearInchesLabel: `${gearInches.toFixed(1)}"`,
+    redundant,
+  };
 }
 
 function App() {
