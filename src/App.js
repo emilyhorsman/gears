@@ -103,16 +103,8 @@ function ArrayInput({ value, onChange }) {
   );
 }
 
-function usePrevious(value) {
-  const ref = useRef();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-}
-
 function arrayEq(a, b) {
-  if (a.length != b.length) {
+  if (a.length !== b.length) {
     return false;
   }
   for (let i = 0; i < a.length; i++) {
