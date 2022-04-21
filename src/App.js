@@ -57,7 +57,7 @@ function App() {
         bailOutRPM={50}
         minRPM={minRPM}
         maxRPM={maxRPM}
-        margin={{ top: 40, right: 10, bottom: 50, left: 60 }}
+        margin={{ top: 50, right: 10, bottom: 50, left: 60 }}
         width={1000}
         height={400}
       />

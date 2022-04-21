@@ -176,13 +176,13 @@ function ClimbingGear({ gears, xScale, yScale, bailOutRPM }) {
     <>
       <Line
         from={{ x, y }}
-        to={{ x, y: -20 }}
+        to={{ x, y: -30 }}
         stroke="#FF7043"
         strokeDasharray={5}
       />
       <circle
         cx={x}
-        cy={-20}
+        cy={-30}
         r={4}
         stroke="#FF7043"
         strokeWidth={2}
@@ -190,11 +190,11 @@ function ClimbingGear({ gears, xScale, yScale, bailOutRPM }) {
       />
       <text
         x={x}
-        y={-20}
+        y={-30}
         textAnchor="start"
         fontSize={12}
-        dy="1.25em"
-        dx="0.5em"
+        dy="0.25em"
+        dx="0.8em"
       >
         At 50 RPM you'll climb that hill at {speed.toFixed(1)} kmh
       </text>
@@ -212,7 +212,14 @@ function HoverArea({ gear, xScale, yScale, minRPM, maxRPM, yMax }) {
   return (
     <>
       <Bar x={x0} y={y} height={height} width={x1 - x0} fill="url('#lines')" />
-      <Text x={x1} y={y} verticalAnchor="start" dx="0.25em" fontSize={13}>
+      <Text
+        x={x0 + (x1 - x0) / 2}
+        y={y - 15}
+        verticalAnchor="start"
+        textAnchor="middle"
+        dx="0.25em"
+        fontSize={13}
+      >
         {`${minSpeed.toFixed(1)} – ${maxSpeed.toFixed(1)} kmh`}
       </Text>
     </>
