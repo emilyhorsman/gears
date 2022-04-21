@@ -82,9 +82,18 @@ const barColors = chainrings.reduce(
 
 function LeftTickLabel({ x, y, formattedValue }) {
   return (
-    <text dx="-0.25em" dy="0.25em" textAnchor="end" x={x} y={y} fontSize={13}>
+    <Text
+      dx="-0.25em"
+      dy="-0.1em"
+      textAnchor="end"
+      x={x}
+      y={y}
+      scaleToFit={true}
+      verticalAnchor="middle"
+      width={MARGIN.left - 20}
+    >
       {formattedValue}
-    </text>
+    </Text>
   );
 }
 
