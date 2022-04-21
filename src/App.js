@@ -28,10 +28,20 @@ viz:
 2. speed remains the same, how much cadence drop?
 */
 
+function cadenceDrop(easier, harder) {
+  const midRPM = (minRPM + maxRPM) / 2;
+  const newCadence = Math.round(
+    (easier.speedAt1RPM * midRPM) / harder.speedAt1RPM
+  );
+  return midRPM - newCadence;
+}
+
+const minRPM = 80;
+const maxRPM = 100;
 const chainrings = [30, 46].reverse();
 const cassette = [11, 13, 15, 17, 19, 22, 25, 28, 32, 36];
 const gears = chainrings.flatMap((chainring) => {
-  return cassette.map((cog) => {
+  const base = cassette.map((cog, index, mapped) => {
     const gearRatio = chainring / cog;
     const development = Math.PI * 0.68 * gearRatio;
     const speedAt1RPM = (development * 60) / 1000;
@@ -43,10 +53,18 @@ const gears = chainrings.flatMap((chainring) => {
       label: `${chainring}t/${cog}t`,
     };
   });
+
+  return base.map((gear, index) => {
+    if (index === 0) {
+      return gear;
+    }
+    return {
+      ...gear,
+      cadenceDrop: cadenceDrop(gear, base[index - 1]),
+    };
+  });
 });
 
-const minRPM = 80;
-const maxRPM = 100;
 const xStep = 5;
 const xScale = scaleLinear({
   range: [0, xMax],
@@ -137,8 +155,12 @@ function App() {
             <Label
               backgroundFill="white"
               showAnchorLine={true}
-              title="foo"
-              subtitle="blah blah blah"
+              title={`${hoveredDatum.front}t/${hoveredDatum.rear}t`}
+              subtitle={
+                hoveredDatum.cadenceDrop === null
+                  ? ""
+                  : `${hoveredDatum.cadenceDrop} RPM less to maintain speed`
+              }
               backgroundProps={{ stroke: "black" }}
             />
           </Annotation>
