@@ -2,6 +2,11 @@ function sum(arr) {
   return arr.reduce((a, b) => a + b);
 }
 
+function stddev(arr) {
+  const mean = sum(arr) / arr.length;
+  return Math.sqrt(sum(arr.map((x) => Math.pow(x - mean, 2))) / arr.length);
+}
+
 function percentChangeFromTo(a, b) {
   return (b - a) / a;
 }
@@ -38,7 +43,7 @@ function minimumStddevShift(easierGears, harderGears, accessor = (x) => x) {
     const percentChangeSteps = [...Array(ratios.length - 1).keys()].map(
       (index) => percentChangeFromTo(ratios[index], ratios[index + 1])
     );
-    const stat = sum(percentChangeSteps);
+    const stat = stddev(percentChangeSteps);
     if (!bestStat || stat < bestStat) {
       bestShiftPosition = shiftPosition;
       bestStat = stat;
