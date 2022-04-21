@@ -7,7 +7,7 @@ import { AxisBottom, AxisLeft } from "@visx/axis";
 import { localPoint } from "@visx/event";
 import { PatternLines } from "@visx/pattern";
 import { Text } from "@visx/text";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { getBestGearPath, getRemainingGears } from "./Gearing";
 
 const HEIGHT = 500;
@@ -115,7 +115,7 @@ function App() {
           width={8}
           stroke="#00282E"
           strokeWidth={1}
-          orientation={["diagonal", "diagonalRightToLeft"]}
+          orientation={"diagonalRightToLeft"}
         />
         <Group left={MARGIN.left} top={MARGIN.top}>
           <Grid
@@ -140,29 +140,44 @@ function App() {
           />
           {hoveredDatum && <HoverArea gear={hoveredDatum} />}
           {gears.map((gear, index) => {
-            const x0 = xScale(gear.speedAt1RPM * (index === 0 ? 50 : minRPM));
+            const xClimb = xScale(gear.speedAt1RPM * 50);
+            const x0 = xScale(gear.speedAt1RPM * minRPM);
             const x1 = xScale(gear.speedAt1RPM * maxRPM);
             const isHovered = gear === hoveredDatum;
             const fill = barColors[gear.front];
             return (
-              <BarRounded
-                key={`bar-${gear.front}-${gear.rear}`}
-                x={x0}
-                y={yScale(gear.label)}
-                height={yScale.bandwidth()}
-                radius={5}
-                bottomLeft={true}
-                topRight={true}
-                all={gear.redundant}
-                width={x1 - x0}
-                fill={
-                  isHovered
-                    ? fill.hover
-                    : gear.redundant
-                    ? fill.redundant
-                    : fill.best
-                }
-              />
+              <Fragment key={`bar-${gear.front}-${gear.rear}`}>
+                {index === 0 && (
+                  <BarRounded
+                    x={xClimb}
+                    y={yScale(gear.label)}
+                    height={yScale.bandwidth()}
+                    radius={5}
+                    bottomLeft={true}
+                    topRight={true}
+                    all={gear.redundant}
+                    width={x1 - xClimb}
+                    fill="#6BEFF9"
+                  />
+                )}
+                <BarRounded
+                  x={x0}
+                  y={yScale(gear.label)}
+                  height={yScale.bandwidth()}
+                  radius={5}
+                  bottomLeft={true}
+                  topRight={true}
+                  all={gear.redundant}
+                  width={x1 - x0}
+                  fill={
+                    isHovered
+                      ? fill.hover
+                      : gear.redundant
+                      ? fill.redundant
+                      : fill.best
+                  }
+                />
+              </Fragment>
             );
           })}
           <Line
@@ -240,10 +255,12 @@ function HoverArea({ gear }) {
   const maxSpeed = gear.speedAt1RPM * maxRPM;
   const x0 = xScale(minSpeed);
   const x1 = xScale(maxSpeed);
+  const y = yScale(calcs(bestPath[0]).label);
+  const height = yMax - y;
   return (
     <>
-      <Bar x={x0} y={0} height={yMax} width={x1 - x0} fill="url('#lines')" />
-      <Text x={x1} y={0} verticalAnchor="start" dx="0.5em">
+      <Bar x={x0} y={y} height={height} width={x1 - x0} fill="url('#lines')" />
+      <Text x={x1} y={y} verticalAnchor="start" dx="0.25em" fontSize={13}>
         {`${minSpeed.toFixed(1)} – ${maxSpeed.toFixed(1)} kmh`}
       </Text>
     </>
