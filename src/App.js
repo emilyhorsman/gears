@@ -5,15 +5,20 @@ import { scaleBand, scaleLinear } from "@visx/scale";
 import { Grid } from "@visx/grid";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { localPoint } from "@visx/event";
-import { useTooltip, Tooltip } from "@visx/tooltip";
-import { Annotation, Connector, Label, LineSubject } from "@visx/annotation";
+import { Annotation, Connector, Label } from "@visx/annotation";
 import { useState } from "react";
+import { getBestGearPath } from "./Gearing";
 
 const HEIGHT = 500;
 const WIDTH = 1000;
 const MARGIN = { top: 10, right: 10, bottom: 30, left: 50 };
 const xMax = WIDTH - MARGIN.left - MARGIN.right;
 const yMax = HEIGHT - MARGIN.top - MARGIN.bottom;
+
+console.log(
+  "result",
+  getBestGearPath([22, 32, 44], [11, 13, 15, 17, 20, 23, 26, 32])
+);
 
 /*
 30/36 = 1.8 meters/revolution = easier
@@ -36,12 +41,12 @@ function cadenceDrop(easier, harder) {
   return midRPM - newCadence;
 }
 
-const minRPM = 80;
+const minRPM = 85;
 const maxRPM = 100;
-const chainrings = [30, 46].reverse();
-const cassette = [11, 13, 15, 17, 19, 22, 25, 28, 32, 36];
-const gears = chainrings.flatMap((chainring) => {
-  const base = cassette.map((cog, index, mapped) => {
+const chainrings = [22, 32, 44].reverse();
+const cassette = [11, 13, 15, 17, 20, 23, 26, 32];
+const gears = chainrings.flatMap((chainring, chainringIndex) => {
+  const base = cassette.map((cog, cogIndex, mapped) => {
     const gearRatio = chainring / cog;
     const development = Math.PI * 0.68 * gearRatio;
     const speedAt1RPM = (development * 60) / 1000;
@@ -50,7 +55,7 @@ const gears = chainrings.flatMap((chainring) => {
       front: chainring,
       rear: cog,
       speedAt1RPM,
-      label: `${chainring}t/${cog}t`,
+      label: `${chainring}t/${cog}t ${(chainring / cog).toFixed(2)}`,
     };
   });
 
