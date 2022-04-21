@@ -48,6 +48,10 @@ function App() {
         <ArrayInput value={chainrings} onChange={setChainrings} />
         <ArrayInput value={cassette} onChange={setCassette} />
       </div>
+      <div>
+        Gear Range:{" "}
+        {Math.round((100 * gears[gears.length - 1].ratio) / gears[0].ratio)}%
+      </div>
       <Chart
         gears={gears}
         bailOutRPM={50}
