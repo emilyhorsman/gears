@@ -76,8 +76,8 @@ export function getRemainingGears(bestPath, chainrings, cassette) {
 }
 
 export function getBestGearPath(inputChainrings, inputCogs) {
-  const chainrings = inputChainrings.sort();
-  const cogs = inputCogs.sort().reverse();
+  const chainrings = inputChainrings.slice().sort();
+  const cogs = inputCogs.slice().sort().reverse();
 
   let path = constructGears(chainrings[0], cogs);
   for (let i = 1; i < chainrings.length; i++) {
