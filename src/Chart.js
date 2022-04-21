@@ -133,8 +133,8 @@ function SpinOutGear({ gears, xScale, yScale, maxRPM }) {
   const maxGear = maxBy(gears, ({ ratio }) => ratio);
   const speed = maxGear.speedAt1RPM * maxRPM;
   const x = xScale(speed);
-  const y = yScale(maxGear.label);
-  const yMax = y - yScale.bandwidth() * 1.5;
+  const y = yScale(maxGear.label) + yScale.bandwidth();
+  const yMax = y + 40;
   return (
     <>
       <Line
