@@ -66,6 +66,20 @@ const findDatum = (point) => {
   });
 };
 
+const palette = [
+  { hover: "#00282E", best: "#26C6DA", redundant: "#D4F4F8" },
+  { hover: "#00282E", best: "#006C7A", redundant: "#6BEFF9" },
+  { hover: "#00282E", best: "#004851", redundant: "#00BED6" },
+];
+const barColors = chainrings.reduce(
+  (obj, front, index) => ({
+    ...obj,
+    [front]: palette[index],
+  }),
+  {}
+);
+console.log({ palette, barColors });
+
 function App() {
   const [hoveredDatum, setHoveredDatum] = useState(null);
 
@@ -87,6 +101,8 @@ function App() {
             const x0 = xScale(gear.speedAt1RPM * minRPM);
             const x1 = xScale(gear.speedAt1RPM * maxRPM);
             const isHovered = gear === hoveredDatum;
+            const fill = barColors[gear.front];
+            console.log({ fill, front: gear.front });
             return (
               <Bar
                 key={`bar-${gear.front}-${gear.rear}`}
@@ -94,7 +110,13 @@ function App() {
                 y={yScale(gear.label)}
                 height={yScale.bandwidth()}
                 width={x1 - x0}
-                fill={isHovered ? "blue" : gear.redundant ? "#999" : "#000"}
+                fill={
+                  isHovered
+                    ? fill.hover
+                    : gear.redundant
+                    ? fill.redundant
+                    : fill.best
+                }
               />
             );
           })}
