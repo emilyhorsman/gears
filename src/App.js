@@ -11,7 +11,7 @@ import { getBestGearPath, getRemainingGears } from "./Gearing";
 
 const HEIGHT = 500;
 const WIDTH = 1000;
-const MARGIN = { top: 10, right: 10, bottom: 30, left: 60 };
+const MARGIN = { top: 10, right: 10, bottom: 50, left: 60 };
 const xMax = WIDTH - MARGIN.left - MARGIN.right;
 const yMax = HEIGHT - MARGIN.top - MARGIN.bottom;
 
@@ -114,6 +114,8 @@ function App() {
             scale={xScale}
             top={yMax}
             tickComponent={BottomTickLabel}
+            label="Speed (kmh)"
+            labelProps={{ fontSize: 13 }}
           />
           <AxisLeft
             scale={yScale}
