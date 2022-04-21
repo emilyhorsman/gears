@@ -11,7 +11,7 @@ import { getBestGearPath, getRemainingGears } from "./Gearing";
 
 const HEIGHT = 500;
 const WIDTH = 1000;
-const MARGIN = { top: 10, right: 10, bottom: 30, left: 50 };
+const MARGIN = { top: 10, right: 10, bottom: 30, left: 60 };
 const xMax = WIDTH - MARGIN.left - MARGIN.right;
 const yMax = HEIGHT - MARGIN.top - MARGIN.bottom;
 
@@ -78,7 +78,22 @@ const barColors = chainrings.reduce(
   }),
   {}
 );
-console.log({ palette, barColors });
+
+function LeftTickLabel({ x, y, formattedValue }) {
+  return (
+    <text dx="-0.25em" dy="0.25em" textAnchor="end" x={x} y={y} fontSize={13}>
+      {formattedValue}
+    </text>
+  );
+}
+
+function BottomTickLabel({ x, y, formattedValue }) {
+  return (
+    <text textAnchor="middle" dy="0.25em" x={x} y={y} fontSize={13}>
+      {formattedValue}
+    </text>
+  );
+}
 
 function App() {
   const [hoveredDatum, setHoveredDatum] = useState(null);
@@ -95,14 +110,21 @@ function App() {
             numTicksRows={gears.length}
             numTicksColumns={60 / xStep}
           />
-          <AxisBottom scale={xScale} top={yMax} />
-          <AxisLeft scale={yScale} numTicks={gears.length} />
+          <AxisBottom
+            scale={xScale}
+            top={yMax}
+            tickComponent={BottomTickLabel}
+          />
+          <AxisLeft
+            scale={yScale}
+            numTicks={gears.length}
+            tickComponent={LeftTickLabel}
+          />
           {gears.map((gear) => {
             const x0 = xScale(gear.speedAt1RPM * minRPM);
             const x1 = xScale(gear.speedAt1RPM * maxRPM);
             const isHovered = gear === hoveredDatum;
             const fill = barColors[gear.front];
-            console.log({ fill, front: gear.front });
             return (
               <Bar
                 key={`bar-${gear.front}-${gear.rear}`}
