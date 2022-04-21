@@ -1,17 +1,16 @@
 import "./App.css";
-import { BarRounded } from "@visx/shape";
+import { BarRounded, Line } from "@visx/shape";
 import { Group } from "@visx/group";
 import { scaleBand, scaleLinear } from "@visx/scale";
 import { Grid } from "@visx/grid";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { localPoint } from "@visx/event";
-import { Annotation, Connector, Label } from "@visx/annotation";
 import { useState } from "react";
 import { getBestGearPath, getRemainingGears } from "./Gearing";
 
 const HEIGHT = 500;
 const WIDTH = 1000;
-const MARGIN = { top: 10, right: 10, bottom: 50, left: 60 };
+const MARGIN = { top: 40, right: 10, bottom: 50, left: 60 };
 const xMax = WIDTH - MARGIN.left - MARGIN.right;
 const yMax = HEIGHT - MARGIN.top - MARGIN.bottom;
 
@@ -38,7 +37,7 @@ const xScale = scaleLinear({
   range: [0, xMax],
   domain: [
     Math.floor(
-      Math.min(...gears.map((gear) => gear.speedAt1RPM * minRPM)) / xStep
+      Math.min(...gears.map((gear) => gear.speedAt1RPM * 50)) / xStep
     ) * xStep,
     Math.ceil(
       Math.max(...gears.map((gear) => gear.speedAt1RPM * maxRPM)) / xStep
@@ -97,6 +96,13 @@ function BottomTickLabel({ x, y, formattedValue }) {
 
 function App() {
   const [hoveredDatum, setHoveredDatum] = useState(null);
+  const spinOutX = xScale(
+    calcs(bestPath[bestPath.length - 1]).speedAt1RPM * maxRPM
+  );
+  const spinOutY =
+    yScale(calcs(bestPath[bestPath.length - 1]).label) + yScale.bandwidth();
+  const climbX = xScale(calcs(bestPath[0]).speedAt1RPM * 50);
+  const climbY = yScale(calcs(bestPath[0]).label);
 
   return (
     <>
@@ -122,8 +128,8 @@ function App() {
             numTicks={gears.length}
             tickComponent={LeftTickLabel}
           />
-          {gears.map((gear) => {
-            const x0 = xScale(gear.speedAt1RPM * minRPM);
+          {gears.map((gear, index) => {
+            const x0 = xScale(gear.speedAt1RPM * (index === 0 ? 50 : minRPM));
             const x1 = xScale(gear.speedAt1RPM * maxRPM);
             const isHovered = gear === hoveredDatum;
             const fill = barColors[gear.front];
@@ -148,6 +154,59 @@ function App() {
               />
             );
           })}
+          <Line
+            from={{ x: spinOutX, y: spinOutY }}
+            to={{ x: spinOutX, y: yMax }}
+            stroke="#FF7043"
+            strokeDasharray={5}
+          />
+          <text
+            x={spinOutX}
+            y={yMax}
+            textAnchor="end"
+            fontSize={12}
+            dy="-0.5em"
+            dx="-0.5em"
+          >
+            At {maxRPM} RPM you spin out going{" "}
+            {Math.round(
+              calcs(bestPath[bestPath.length - 1]).speedAt1RPM * maxRPM
+            )}{" "}
+            kmh
+          </text>
+          <circle
+            cx={spinOutX}
+            cy={yMax}
+            r={4}
+            stroke="#FF7043"
+            strokeWidth={2}
+            fill="#FFBEA9"
+          />
+          <Line
+            from={{ x: climbX, y: climbY }}
+            to={{ x: climbX, y: -20 }}
+            stroke="#FF7043"
+            strokeDasharray={5}
+          />
+          <circle
+            cx={climbX}
+            cy={-20}
+            r={4}
+            stroke="#FF7043"
+            strokeWidth={2}
+            fill="#FFBEA9"
+          />
+          <text
+            x={climbX}
+            y={-20}
+            textAnchor="start"
+            fontSize={12}
+            dy="1.25em"
+            dx="0.5em"
+          >
+            At 50 RPM you'll climb that hill at{" "}
+            {(calcs(bestPath[0]).speedAt1RPM * 50).toFixed(1)} kmh
+          </text>
         </Group>
         <rect
           width={WIDTH}
@@ -160,25 +219,6 @@ function App() {
           }}
           onMouseLeave={() => setHoveredDatum(null)}
         />
-        {hoveredDatum && (
-          <Annotation
-            width={WIDTH}
-            height={HEIGHT}
-            x={xScale(hoveredDatum.speedAt1RPM * minRPM) + MARGIN.left}
-            y={yScale(hoveredDatum.label) + MARGIN.top + yScale.bandwidth() / 2}
-            dx={-50}
-            dy={yScale.bandwidth() * 2}
-          >
-            <Connector stroke="#00282E" type="elbow" />
-            <Label
-              backgroundFill="white"
-              showAnchorLine={true}
-              title={`${hoveredDatum.front}/${hoveredDatum.rear}t`}
-              subtitle={"foo\nhio"}
-              backgroundProps={{ stroke: "black" }}
-            />
-          </Annotation>
-        )}
       </svg>
     </>
   );
