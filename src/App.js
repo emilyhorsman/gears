@@ -1,20 +1,19 @@
-import './App.css';
-import { Bar } from '@visx/shape';
-import { Group } from '@visx/group';
-import { scaleBand, scaleLinear } from '@visx/scale';
-import { Grid } from '@visx/grid';
-import { AxisBottom, AxisLeft } from '@visx/axis';
-import { localPoint } from '@visx/event';
-import { useState } from 'react';
-import { useTooltip, Tooltip } from '@visx/tooltip';
+import "./App.css";
+import { Bar } from "@visx/shape";
+import { Group } from "@visx/group";
+import { scaleBand, scaleLinear } from "@visx/scale";
+import { Grid } from "@visx/grid";
+import { AxisBottom, AxisLeft } from "@visx/axis";
+import { localPoint } from "@visx/event";
+import { useTooltip, Tooltip } from "@visx/tooltip";
+import { Annotation, Connector, Label, LineSubject } from "@visx/annotation";
+import { useState } from "react";
 
 const HEIGHT = 500;
 const WIDTH = 1000;
 const MARGIN = { top: 10, right: 10, bottom: 30, left: 50 };
-const background = '#eaedff';
 const xMax = WIDTH - MARGIN.left - MARGIN.right;
 const yMax = HEIGHT - MARGIN.top - MARGIN.bottom;
-
 
 /*
 30/36 = 1.8 meters/revolution = easier
@@ -31,19 +30,19 @@ viz:
 
 const chainrings = [30, 46].reverse();
 const cassette = [11, 13, 15, 17, 19, 22, 25, 28, 32, 36];
-const gears = chainrings.flatMap(chainring => {
-  return cassette.map(cog => {
+const gears = chainrings.flatMap((chainring) => {
+  return cassette.map((cog) => {
     const gearRatio = chainring / cog;
     const development = Math.PI * 0.68 * gearRatio;
-    const speedAt1RPM = development * 60 / 1000;
+    const speedAt1RPM = (development * 60) / 1000;
 
     return {
       front: chainring,
       rear: cog,
       speedAt1RPM,
-      label: `${chainring}t/${cog}t`
+      label: `${chainring}t/${cog}t`,
     };
-  })
+  });
 });
 
 const minRPM = 80;
@@ -52,20 +51,24 @@ const xStep = 5;
 const xScale = scaleLinear({
   range: [0, xMax],
   domain: [
-    Math.floor(Math.min(...gears.map(gear => gear.speedAt1RPM * minRPM)) / xStep) * xStep,
-    Math.ceil(Math.max(...gears.map(gear => gear.speedAt1RPM * maxRPM)) / xStep) * xStep
-  ]
+    Math.floor(
+      Math.min(...gears.map((gear) => gear.speedAt1RPM * minRPM)) / xStep
+    ) * xStep,
+    Math.ceil(
+      Math.max(...gears.map((gear) => gear.speedAt1RPM * maxRPM)) / xStep
+    ) * xStep,
+  ],
 });
 const yScale = scaleBand({
   range: [0, yMax],
-  domain: gears.map(gear => gear.label),
-  padding: 0.1
-})
+  domain: gears.map((gear) => gear.label),
+  padding: 0.1,
+});
 
-const findDatum = point => {
+const findDatum = (point) => {
   const x = point.x - MARGIN.left;
   const y = point.y - MARGIN.top;
-  return gears.find(gear => {
+  return gears.find((gear) => {
     const x0 = xScale(gear.speedAt1RPM * minRPM);
     const x1 = xScale(gear.speedAt1RPM * maxRPM);
     if (x < x0 || x > x1) {
@@ -74,18 +77,11 @@ const findDatum = point => {
     const y0 = yScale(gear.label);
     const y1 = y0 + yScale.bandwidth();
     return y >= y0 && y <= y1;
-  })
-}
+  });
+};
 
 function App() {
-  const {
-    tooltipData,
-    tooltipLeft,
-    tooltipTop,
-    tooltipOpen,
-    showTooltip,
-    hideTooltip,
-  } = useTooltip();
+  const [hoveredDatum, setHoveredDatum] = useState(null);
 
   return (
     <>
@@ -101,10 +97,10 @@ function App() {
           />
           <AxisBottom scale={xScale} top={yMax} />
           <AxisLeft scale={yScale} numTicks={gears.length} />
-          {gears.map(gear => {
+          {gears.map((gear) => {
             const x0 = xScale(gear.speedAt1RPM * minRPM);
             const x1 = xScale(gear.speedAt1RPM * maxRPM);
-            const isHovered = gear.label === tooltipData?.label;
+            const isHovered = gear === hoveredDatum;
             return (
               <Bar
                 key={`bar-${gear.front}-${gear.rear}`}
@@ -114,24 +110,40 @@ function App() {
                 width={x1 - x0}
                 fill={isHovered ? "blue" : "#000"}
               />
-            )
+            );
           })}
         </Group>
-        <rect width={WIDTH} height={HEIGHT} fill="transparent" onMouseMove={event => {
-          const point = localPoint(event);
-          const datum = findDatum(point);
-          if (!datum) {
-            hideTooltip();
-            return;
-          }
-          showTooltip({
-            tooltipLeft: event.clientX,
-            tooltipTop: event.clientY,
-            tooltipData: datum,
-          })
-        }} onMouseLeave={() => hideTooltip()} />
+        <rect
+          width={WIDTH}
+          height={HEIGHT}
+          fill="transparent"
+          onMouseMove={(event) => {
+            const point = localPoint(event);
+            const datum = findDatum(point);
+            setHoveredDatum(datum);
+          }}
+          onMouseLeave={() => setHoveredDatum(null)}
+        />
+        {hoveredDatum && (
+          <Annotation
+            width={WIDTH}
+            height={HEIGHT}
+            x={xScale(hoveredDatum.speedAt1RPM * minRPM) + MARGIN.left}
+            y={yScale(hoveredDatum.label) + MARGIN.top}
+            dx={-20}
+            dy={-10}
+          >
+            <Connector stroke="orange" type="elbow" />
+            <Label
+              backgroundFill="white"
+              showAnchorLine={true}
+              title="foo"
+              subtitle="blah blah blah"
+              backgroundProps={{ stroke: "black" }}
+            />
+          </Annotation>
+        )}
       </svg>
-      {tooltipOpen && <Tooltip top={tooltipTop} left={tooltipLeft}>woo</Tooltip>}
     </>
   );
 }
