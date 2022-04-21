@@ -6,6 +6,7 @@ import { Grid } from "@visx/grid";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { localPoint } from "@visx/event";
 import { PatternLines } from "@visx/pattern";
+import { Text } from "@visx/text";
 import { useState } from "react";
 import { getBestGearPath, getRemainingGears } from "./Gearing";
 
@@ -110,8 +111,8 @@ function App() {
       <svg width={WIDTH} height={HEIGHT}>
         <PatternLines
           id="lines"
-          height={10}
-          width={10}
+          height={8}
+          width={8}
           stroke="#00282E"
           strokeWidth={1}
           orientation={["diagonal", "diagonalRightToLeft"]}
@@ -137,18 +138,7 @@ function App() {
             numTicks={gears.length}
             tickComponent={LeftTickLabel}
           />
-          {hoveredDatum && (
-            <Bar
-              x={xScale(hoveredDatum.speedAt1RPM * minRPM)}
-              y={0}
-              height={yMax}
-              width={
-                xScale(hoveredDatum.speedAt1RPM * maxRPM) -
-                xScale(hoveredDatum.speedAt1RPM * minRPM)
-              }
-              fill="url('#lines')"
-            />
-          )}
+          {hoveredDatum && <HoverArea gear={hoveredDatum} />}
           {gears.map((gear, index) => {
             const x0 = xScale(gear.speedAt1RPM * (index === 0 ? 50 : minRPM));
             const x1 = xScale(gear.speedAt1RPM * maxRPM);
@@ -241,6 +231,21 @@ function App() {
           onMouseLeave={() => setHoveredDatum(null)}
         />
       </svg>
+    </>
+  );
+}
+
+function HoverArea({ gear }) {
+  const minSpeed = gear.speedAt1RPM * minRPM;
+  const maxSpeed = gear.speedAt1RPM * maxRPM;
+  const x0 = xScale(minSpeed);
+  const x1 = xScale(maxSpeed);
+  return (
+    <>
+      <Bar x={x0} y={0} height={yMax} width={x1 - x0} fill="url('#lines')" />
+      <Text x={x1} y={0} verticalAnchor="start" dx="0.5em">
+        {`${minSpeed.toFixed(1)} – ${maxSpeed.toFixed(1)} kmh`}
+      </Text>
     </>
   );
 }
