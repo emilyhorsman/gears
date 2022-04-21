@@ -7,18 +7,13 @@ import { AxisBottom, AxisLeft } from "@visx/axis";
 import { localPoint } from "@visx/event";
 import { Annotation, Connector, Label } from "@visx/annotation";
 import { useState } from "react";
-import { getBestGearPath } from "./Gearing";
+import { constructGears, getBestGearPath, getRemainingGears } from "./Gearing";
 
 const HEIGHT = 500;
 const WIDTH = 1000;
 const MARGIN = { top: 10, right: 10, bottom: 30, left: 50 };
 const xMax = WIDTH - MARGIN.left - MARGIN.right;
 const yMax = HEIGHT - MARGIN.top - MARGIN.bottom;
-
-console.log(
-  "result",
-  getBestGearPath([22, 32, 44], [11, 13, 15, 17, 20, 23, 26, 32])
-);
 
 /*
 30/36 = 1.8 meters/revolution = easier
@@ -41,34 +36,23 @@ function cadenceDrop(easier, harder) {
   return midRPM - newCadence;
 }
 
+function calcs(gear, redundant) {
+  const { front, rear, ratio } = gear;
+  const development = Math.PI * 0.68 * ratio;
+  const speedAt1RPM = (development * 60) / 1000;
+  return { ...gear, speedAt1RPM, label: `${front}/${rear}t`, redundant };
+}
+
 const minRPM = 85;
 const maxRPM = 100;
 const chainrings = [22, 32, 44].reverse();
-const cassette = [11, 13, 15, 17, 20, 23, 26, 32];
-const gears = chainrings.flatMap((chainring, chainringIndex) => {
-  const base = cassette.map((cog, cogIndex, mapped) => {
-    const gearRatio = chainring / cog;
-    const development = Math.PI * 0.68 * gearRatio;
-    const speedAt1RPM = (development * 60) / 1000;
-
-    return {
-      front: chainring,
-      rear: cog,
-      speedAt1RPM,
-      label: `${chainring}t/${cog}t ${(chainring / cog).toFixed(2)}`,
-    };
-  });
-
-  return base.map((gear, index) => {
-    if (index === 0) {
-      return gear;
-    }
-    return {
-      ...gear,
-      cadenceDrop: cadenceDrop(gear, base[index - 1]),
-    };
-  });
-});
+const cassette = [11, 13, 15, 17, 20, 23, 26, 32].reverse();
+const bestPath = getBestGearPath(chainrings, cassette);
+const gears = bestPath
+  .map((g) => calcs(g, false))
+  .concat(
+    getRemainingGears(bestPath, chainrings, cassette).map((g) => calcs(g, true))
+  );
 
 const xStep = 5;
 const xScale = scaleLinear({
@@ -131,7 +115,7 @@ function App() {
                 y={yScale(gear.label)}
                 height={yScale.bandwidth()}
                 width={x1 - x0}
-                fill={isHovered ? "blue" : "#000"}
+                fill={isHovered ? "blue" : gear.redundant ? "#999" : "#000"}
               />
             );
           })}
@@ -161,11 +145,7 @@ function App() {
               backgroundFill="white"
               showAnchorLine={true}
               title={`${hoveredDatum.front}t/${hoveredDatum.rear}t`}
-              subtitle={
-                hoveredDatum.cadenceDrop === null
-                  ? ""
-                  : `${hoveredDatum.cadenceDrop} RPM less to maintain speed`
-              }
+              subtitle={"foo"}
               backgroundProps={{ stroke: "black" }}
             />
           </Annotation>

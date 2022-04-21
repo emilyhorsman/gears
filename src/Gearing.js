@@ -61,6 +61,20 @@ function constructGears(front, cogs) {
   }));
 }
 
+export function getRemainingGears(bestPath, chainrings, cassette) {
+  return chainrings
+    .flatMap((front) => constructGears(front, cassette))
+    .filter(({ front, rear }) => {
+      if (
+        (front === chainrings[0] && rear === cassette[cassette.length - 1]) ||
+        (front === chainrings[chainrings.length - 1] && rear === cassette[0])
+      ) {
+        return false;
+      }
+      return bestPath.find((g) => g.front === front && g.rear === rear) == null;
+    });
+}
+
 export function getBestGearPath(inputChainrings, inputCogs) {
   const chainrings = inputChainrings.sort();
   const cogs = inputCogs.sort().reverse();
