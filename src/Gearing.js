@@ -2,11 +2,6 @@ function sum(arr) {
   return arr.reduce((a, b) => a + b);
 }
 
-function stddev(arr) {
-  const mean = sum(arr) / arr.length;
-  return Math.sqrt(sum(arr.map((a) => Math.pow(a - mean, 2))) / arr.length);
-}
-
 function percentChangeFromTo(a, b) {
   return (b - a) / a;
 }
