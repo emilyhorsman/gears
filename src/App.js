@@ -165,16 +165,16 @@ function App() {
             width={WIDTH}
             height={HEIGHT}
             x={xScale(hoveredDatum.speedAt1RPM * minRPM) + MARGIN.left}
-            y={yScale(hoveredDatum.label) + MARGIN.top}
-            dx={-20}
-            dy={-10}
+            y={yScale(hoveredDatum.label) + MARGIN.top + yScale.bandwidth() / 2}
+            dx={-50}
+            dy={yScale.bandwidth() * 2}
           >
-            <Connector stroke="orange" type="elbow" />
+            <Connector stroke="#00282E" type="elbow" />
             <Label
               backgroundFill="white"
               showAnchorLine={true}
-              title={`${hoveredDatum.front}t/${hoveredDatum.rear}t`}
-              subtitle={"foo"}
+              title={`${hoveredDatum.front}/${hoveredDatum.rear}t`}
+              subtitle={"foo\nhio"}
               backgroundProps={{ stroke: "black" }}
             />
           </Annotation>
