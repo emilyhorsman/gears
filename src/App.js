@@ -1,5 +1,5 @@
 import "./App.css";
-import { Bar } from "@visx/shape";
+import { BarRounded } from "@visx/shape";
 import { Group } from "@visx/group";
 import { scaleBand, scaleLinear } from "@visx/scale";
 import { Grid } from "@visx/grid";
@@ -24,8 +24,8 @@ function calcs(gear, redundant) {
 
 const minRPM = 85;
 const maxRPM = 100;
-const chainrings = [22, 32, 44].reverse();
-const cassette = [11, 13, 15, 17, 20, 23, 26, 32].reverse();
+const chainrings = [30, 46]; // [22, 32, 44].reverse();
+const cassette = [11, 13, 15, 17, 19, 22, 25, 28, 32, 36].reverse(); //[11, 13, 15, 17, 20, 23, 26, 32].reverse();
 const bestPath = getBestGearPath(chainrings, cassette);
 const gears = bestPath
   .map((g) => calcs(g, false))
@@ -128,11 +128,15 @@ function App() {
             const isHovered = gear === hoveredDatum;
             const fill = barColors[gear.front];
             return (
-              <Bar
+              <BarRounded
                 key={`bar-${gear.front}-${gear.rear}`}
                 x={x0}
                 y={yScale(gear.label)}
                 height={yScale.bandwidth()}
+                radius={5}
+                bottomLeft={true}
+                topRight={true}
+                all={gear.redundant}
                 width={x1 - x0}
                 fill={
                   isHovered
