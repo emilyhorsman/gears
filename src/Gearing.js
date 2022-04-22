@@ -39,7 +39,8 @@ export class Gear {
 
 export class Drivetrain {
   constructor(params) {
-    const { fronts, rears, wheelRadius, crankLength } = params;
+    const { fronts, rears, wheelRadius, crankLength, useBestPath } = params;
+    this.params = params;
     this.rearSize = rears.length;
     this.byChainring = fronts
       .slice()
@@ -49,7 +50,7 @@ export class Drivetrain {
           .slice()
           .sort()
           .map((rear, rearPos) => {
-            return new Gear({
+            const gear = new Gear({
               front,
               rear,
               wheelRadius,
@@ -58,8 +59,14 @@ export class Drivetrain {
               rearPos,
               drivetrain: this,
             });
+            gear.inBestPath = false;
+            return gear;
           });
       });
+
+    this._computeBestPath().map((gear) => {
+      gear.inBestPath = true;
+    });
   }
 
   get gearsGroupedByChainring() {
@@ -76,6 +83,13 @@ export class Drivetrain {
 
   get hardestGear() {
     return this.sortedGears[this.sortedGears.length - 1];
+  }
+
+  get gears() {
+    if (this.params.useBestPath) {
+      return this.sortedGears.filter((gear) => gear.inBestPath);
+    }
+    return this.gearsGroupedByChainring;
   }
 
   _computeBestPath() {

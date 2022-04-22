@@ -12,7 +12,14 @@ const xStep = 5;
 const blue = "#2E78D2";
 const navy = "#112E51";
 const lightestBlue = "#C1D7F2";
+const teal = "#26C6DA";
+const darkerTeal = "#004851";
 const barHeight = 10;
+
+const palette = [
+  [blue, navy],
+  [teal, darkerTeal],
+];
 
 function Chart(props) {
   const { drivetrain, bailOutRPM, minRPM, maxRPM, margin, width, height } =
@@ -74,7 +81,7 @@ function Chart(props) {
           onMouseMove={(event) => {
             const point = localPoint(event);
             const datum = findDatum(point, {
-              gears: drivetrain.sortedGears,
+              gears: drivetrain.gears,
               xScale,
               yScale,
               minRPM,
@@ -101,27 +108,25 @@ function GearRPMSpeedBars({
 }) {
   return (
     <>
-      {drivetrain.gearsGroupedByChainring.map((gear, index) => {
-        const xClimb = xScale(gear.perHourSpeedAtRPM(bailOutRPM).km);
+      {drivetrain.gears.map((gear) => {
         const x0 = xScale(gear.perHourSpeedAtRPM(minRPM).km);
         const x1 = xScale(gear.perHourSpeedAtRPM(maxRPM).km);
+        const y = yScale(gear.gainRatio);
         return (
-          <Fragment key={`bar-${gear.front}-${gear.rear}`}>
-            {index === 0 && (
-              <Bar
-                x={xClimb}
-                y={yScale(gear.gainRatio) - barHeight / 2}
-                height={barHeight}
-                width={x1 - xClimb}
-                fill={lightestBlue}
-              />
-            )}
-            <Bar
-              x={x0}
-              y={yScale(gear.gainRatio) - barHeight / 2}
-              height={barHeight}
-              width={x1 - x0}
-              fill={gear === curGear ? navy : blue}
+          <Fragment key={`${gear.params.frontPos}-${gear.params.rearPos}`}>
+            <Line
+              from={{ x: x0, y }}
+              to={{ x: x1, y }}
+              stroke={palette[gear.params.frontPos][0]}
+              strokeWidth={2}
+            />
+            <circle
+              cx={(x0 + x1) / 2}
+              cy={y}
+              r={4}
+              stroke={palette[gear.params.frontPos][1]}
+              strokeWidth={2}
+              fill={palette[gear.params.frontPos][0]}
             />
           </Fragment>
         );
@@ -130,82 +135,9 @@ function GearRPMSpeedBars({
   );
 }
 
-function SpinOutGear({ gears, xScale, yScale, maxRPM }) {
-  const maxGear = maxBy(gears, ({ ratio }) => ratio);
-  const speed = maxGear.speedAt1RPM * maxRPM;
-  const x = xScale(speed);
-  const y = yScale(maxGear.label) + barHeight;
-  const yMax = y + 40;
-  return (
-    <>
-      <Line
-        from={{ x, y }}
-        to={{ x, y: yMax }}
-        stroke="#FF7043"
-        strokeDasharray={5}
-      />
-      <Text
-        x={x}
-        y={yMax}
-        textAnchor="end"
-        verticalAnchor="middle"
-        fontSize={12}
-        dy="-0.1em"
-        dx="-0.8em"
-      >
-        {`At ${maxRPM} RPM you spin out going ${Math.round(speed)} kmh`}
-      </Text>
-      <circle
-        cx={x}
-        cy={yMax}
-        r={4}
-        stroke="#FF7043"
-        strokeWidth={2}
-        fill="#FFBEA9"
-      />
-    </>
-  );
-}
-
-function ClimbingGear({ gears, xScale, yScale, bailOutRPM }) {
-  const minGear = minBy(gears, ({ ratio }) => ratio);
-  const speed = minGear.speedAt1RPM * bailOutRPM;
-  const x = xScale(speed);
-  const y = yScale(minGear.label);
-
-  return (
-    <>
-      <Line
-        from={{ x, y }}
-        to={{ x, y: -30 }}
-        stroke="#FF7043"
-        strokeDasharray={5}
-      />
-      <circle
-        cx={x}
-        cy={-30}
-        r={4}
-        stroke="#FF7043"
-        strokeWidth={2}
-        fill="#FFBEA9"
-      />
-      <text
-        x={x}
-        y={-30}
-        textAnchor="start"
-        fontSize={12}
-        dy="0.25em"
-        dx="0.8em"
-      >
-        At 50 RPM you'll climb that hill at {speed.toFixed(1)} kmh
-      </text>
-    </>
-  );
-}
-
 function HoverArea({ gear, xScale, yScale, minRPM, maxRPM, yMax }) {
-  const minSpeed = gear.speedAt1RPM * minRPM;
-  const maxSpeed = gear.speedAt1RPM * maxRPM;
+  const minSpeed = gear.perHourSpeedAtRPM(minRPM).km;
+  const maxSpeed = gear.perHourSpeedAtRPM(maxRPM).km;
   const x0 = xScale(minSpeed);
   const x1 = xScale(maxSpeed);
   const y = yScale.range()[0];

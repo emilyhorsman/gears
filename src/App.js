@@ -15,12 +15,12 @@ function App() {
     11, 13, 15, 17, 19, 22, 25, 28, 32, 36,
   ]);
   const [useBestPath, setUseBestPath] = useState(true);
-  const [sortRatios, setSortRatios] = useState(true);
   const drivetrain = new Drivetrain({
     fronts: chainrings,
     rears: cassette,
     wheelRadius: Meters(0.34),
     crankLength: Meters(0.17),
+    useBestPath,
   });
 
   return (
@@ -61,20 +61,10 @@ function App() {
             onChange={(event) => setUseBestPath(event.target.checked)}
           />
         </label>
-        {!useBestPath && (
-          <label>
-            Sort gears?
-            <input
-              type="checkbox"
-              checked={sortRatios}
-              onChange={(event) => setSortRatios(event.target.checked)}
-            />
-          </label>
-        )}
       </div>
 
       <Chart
-        gears={drivetrain}
+        drivetrain={drivetrain}
         bailOutRPM={50}
         minRPM={minRPM}
         maxRPM={maxRPM}
