@@ -15,7 +15,8 @@ const lightestBlue = "#C1D7F2";
 const barHeight = 10;
 
 function Chart(props) {
-  const { gears, bailOutRPM, minRPM, maxRPM, margin, width, height } = props;
+  const { drivetrain, bailOutRPM, minRPM, maxRPM, margin, width, height } =
+    props;
   const xScale = speedScale(props);
   const yScale = gearScale(props);
   const xMax = width - margin.left - margin.right;
@@ -36,14 +37,7 @@ function Chart(props) {
         />
 
         <Group left={margin.left} top={margin.top}>
-          <Grid
-            xScale={xScale}
-            yScale={yScale}
-            width={xMax}
-            height={yMax}
-            numTicksRows={gears.length}
-            numTicksColumns={60 / xStep}
-          />
+          <Grid xScale={xScale} yScale={yScale} width={xMax} height={yMax} />
           <AxisBottom
             scale={xScale}
             top={yMax}
@@ -64,9 +58,10 @@ function Chart(props) {
             />
           )}
           <GearRPMSpeedBars
-            gears={gears}
+            drivetrain={drivetrain}
             xScale={xScale}
             yScale={yScale}
+            bailOutRPM={bailOutRPM}
             minRPM={minRPM}
             maxRPM={maxRPM}
             curGear={curGear}
@@ -79,7 +74,7 @@ function Chart(props) {
           onMouseMove={(event) => {
             const point = localPoint(event);
             const datum = findDatum(point, {
-              gears,
+              gears: drivetrain.sortedGears,
               xScale,
               yScale,
               minRPM,
@@ -95,13 +90,21 @@ function Chart(props) {
   );
 }
 
-function GearRPMSpeedBars({ gears, xScale, yScale, minRPM, maxRPM, curGear }) {
+function GearRPMSpeedBars({
+  drivetrain,
+  xScale,
+  yScale,
+  bailOutRPM,
+  minRPM,
+  maxRPM,
+  curGear,
+}) {
   return (
     <>
-      {gears.map((gear, index) => {
-        const xClimb = xScale(gear.speedAt1RPM * 50);
-        const x0 = xScale(gear.speedAt1RPM * minRPM);
-        const x1 = xScale(gear.speedAt1RPM * maxRPM);
+      {drivetrain.gearsGroupedByChainring.map((gear, index) => {
+        const xClimb = xScale(gear.perHourSpeedAtRPM(bailOutRPM).km);
+        const x0 = xScale(gear.perHourSpeedAtRPM(minRPM).km);
+        const x1 = xScale(gear.perHourSpeedAtRPM(maxRPM).km);
         return (
           <Fragment key={`bar-${gear.front}-${gear.rear}`}>
             {index === 0 && (
@@ -275,8 +278,8 @@ function findDatum(point, { gears, xScale, yScale, minRPM, maxRPM, margin }) {
   const x = point.x - margin.left;
   const y = point.y - margin.top;
   return gears.find((gear) => {
-    const x0 = xScale(gear.speedAt1RPM * minRPM);
-    const x1 = xScale(gear.speedAt1RPM * maxRPM);
+    const x0 = xScale(gear.perHourSpeedAtRPM(minRPM).km);
+    const x1 = xScale(gear.perHourSpeedAtRPM(maxRPM).km);
     if (x < x0 || x > x1) {
       return false;
     }
@@ -286,27 +289,25 @@ function findDatum(point, { gears, xScale, yScale, minRPM, maxRPM, margin }) {
   });
 }
 
-function speedScale({ gears, bailOutRPM, maxRPM, width, margin }) {
+function speedScale({ drivetrain, bailOutRPM, maxRPM, width, margin }) {
   return scaleLinear({
     range: [0, width - margin.left - margin.right],
     domain: [
       Math.floor(
-        Math.min(...gears.map((gear) => gear.speedAt1RPM * bailOutRPM)) / xStep
+        drivetrain.easiestGear.perHourSpeedAtRPM(bailOutRPM).km / xStep
       ) * xStep,
-      Math.ceil(
-        Math.max(...gears.map((gear) => gear.speedAt1RPM * maxRPM)) / xStep
-      ) * xStep,
+      Math.ceil(drivetrain.hardestGear.perHourSpeedAtRPM(maxRPM).km / xStep) *
+        xStep,
     ],
   });
 }
 
-function gearScale({ gears, height, margin }) {
+function gearScale({ drivetrain, height, margin }) {
   return scaleLinear({
     range: [0, height - margin.top - margin.bottom],
     domain: [
-      Math.floor(Math.min(...gears.map((gear) => gear.gainRatio)) / 0.75) *
-        0.75,
-      Math.ceil(Math.max(...gears.map((gear) => gear.gainRatio)) / 0.75) * 0.75,
+      Math.floor(drivetrain.easiestGear.gainRatio / 0.75) * 0.75,
+      Math.ceil(drivetrain.hardestGear.gainRatio / 0.75) * 0.75,
     ],
   });
 }

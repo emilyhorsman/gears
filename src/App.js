@@ -1,26 +1,11 @@
-import { getBestGearPath, getRemainingGears } from "./Gearing";
+import {
+  Drivetrain,
+  getBestGearPath,
+  getRemainingGears,
+  Meters,
+} from "./Gearing";
 import Chart from "./Chart";
 import { useEffect, useRef, useState } from "react";
-
-function calcs(gear, redundant) {
-  const { front, rear, ratio } = gear;
-  const wheelRadiusInMeters = 0.34;
-  const crankLengthInMeters = 0.17;
-  const radiusRatio = wheelRadiusInMeters / crankLengthInMeters;
-  const gainRatio = radiusRatio * ratio;
-  const crankOrbitCircumferenceInMeters = Math.PI * 2 * crankLengthInMeters;
-  const metersTravelledPerRevolution =
-    crankOrbitCircumferenceInMeters * gainRatio;
-  const speedAt1RPM = (metersTravelledPerRevolution * 60) / 1000;
-
-  return {
-    ...gear,
-    speedAt1RPM,
-    label: `${front}/${rear}t`,
-    gainRatio,
-    redundant,
-  };
-}
 
 function App() {
   const [minRPM, setMinRPM] = useState(85);
@@ -31,13 +16,12 @@ function App() {
   ]);
   const [useBestPath, setUseBestPath] = useState(true);
   const [sortRatios, setSortRatios] = useState(true);
-  const bestPath = useBestPath
-    ? getBestGearPath(chainrings, cassette)
-    : getRemainingGears([], chainrings, cassette.slice().reverse());
-  const gears = bestPath.map((g) => calcs(g, false));
-  if (!useBestPath && sortRatios) {
-    gears.sort((a, b) => a.ratio - b.ratio);
-  }
+  const drivetrain = new Drivetrain({
+    fronts: chainrings,
+    rears: cassette,
+    wheelRadius: Meters(0.34),
+    crankLength: Meters(0.17),
+  });
 
   return (
     <>
@@ -88,12 +72,9 @@ function App() {
           </label>
         )}
       </div>
-      <div>
-        Gear Range:{" "}
-        {Math.round((100 * gears[gears.length - 1].ratio) / gears[0].ratio)}%
-      </div>
+
       <Chart
-        gears={gears}
+        gears={drivetrain}
         bailOutRPM={50}
         minRPM={minRPM}
         maxRPM={maxRPM}

@@ -20,23 +20,27 @@ export class Gear {
     );
   }
 
-  speedAtRPM(rpm) {
-    return Meters(this.travelPerRevolution.m * rpm);
+  perHourSpeedAtRPM(rpm) {
+    return Meters(this.travelPerRevolution.m * rpm * 60);
   }
 
   compare(other) {
-    return self.gainRatio - other.gainRatio;
+    return this.gainRatio - other.gainRatio;
+  }
+
+  multipleHarderThan(other) {
+    return this.gainRatio / other.gainRatio;
   }
 
   isHarderThan(other, threshold = 1.05) {
-    return self.gainRatio / other.gainRatio > threshold;
+    return this.multipleHarderThan(other) > threshold;
   }
 }
 
 export class Drivetrain {
-  constructor(fronts, rears, wheelRadius, crankLength) {
-    this.frontSize = chainrings.length;
-    this.rearSize = cogs.length;
+  constructor(params) {
+    const { fronts, rears, wheelRadius, crankLength } = params;
+    this.rearSize = rears.length;
     this.byChainring = fronts
       .slice()
       .sort()
@@ -58,13 +62,66 @@ export class Drivetrain {
       });
   }
 
-  get gearsSortedByChainring() {
+  get gearsGroupedByChainring() {
     return this.byChainring.flat();
   }
 
-  get gearsSortedWithGainRatio() {
-    return this.gearsSortedByChainring.sort((a, b) => a.compare(b));
+  get sortedGears() {
+    return this.gearsGroupedByChainring.sort((a, b) => a.compare(b));
   }
+
+  get easiestGear() {
+    return this.sortedGears[0];
+  }
+
+  get hardestGear() {
+    return this.sortedGears[this.sortedGears.length - 1];
+  }
+
+  _computeBestPath() {
+    return this.byChainring.reduce((path, gears) => {
+      const bestShiftPos = computeBestShiftPos(path, gears);
+      return joinPathAt(path, gears, bestShiftPos);
+    });
+  }
+}
+
+function joinPathAt(easierGears, harderGears, pos) {
+  const preShift = easierGears.slice(0, pos);
+  const postShift = harderGears.filter((gear) => {
+    return gear.isHarderThan(preShift[preShift.length - 1]);
+  });
+  return preShift.concat(postShift);
+}
+
+function computeBestShiftPos(
+  easierGears,
+  harderGears,
+  statFunc = stddev,
+  statCmpFunc = (a, b) => a < b
+) {
+  const best = { pos: null, stat: null };
+  for (
+    let pos = easierGears.length - harderGears.length + 1;
+    pos <= easierGears.length;
+    pos++
+  ) {
+    const candidatePath = joinPathAt(easierGears, harderGears, pos);
+    const steps = integerRange(1, candidatePath.length).map((i) => {
+      return candidatePath[i].multipleHarderThan(candidatePath[i - 1]);
+    });
+    const stat = statFunc(steps);
+    if (best.stat === null || statCmpFunc(stat, best.stat)) {
+      best.pos = pos;
+      best.stat = stat;
+    }
+  }
+
+  return best.pos;
+}
+
+function integerRange(start, upToAndExcluding) {
+  return [...Array(upToAndExcluding - start).keys()].map((x) => x + start);
 }
 
 function sum(arr) {
@@ -74,85 +131,4 @@ function sum(arr) {
 function stddev(arr) {
   const mean = sum(arr) / arr.length;
   return Math.sqrt(sum(arr.map((x) => Math.pow(x - mean, 2))) / arr.length);
-}
-
-function percentChangeFromTo(a, b) {
-  return (b - a) / a;
-}
-
-function joinRatioPath(easier, harder, pos, accessor) {
-  const preShift = easier.slice(0, pos);
-  const hardestRatio =
-    preShift.length > 0
-      ? accessor(preShift[preShift.length - 1])
-      : Number.NEGATIVE_INFINITY;
-  const postShift = harder.filter((gear) => {
-    const ratio = accessor(gear);
-    return (
-      ratio > hardestRatio && percentChangeFromTo(hardestRatio, ratio) > 0.05
-    );
-  });
-  return preShift.concat(postShift);
-}
-
-function minimumStddevShift(easierGears, harderGears, accessor = (x) => x) {
-  let bestShiftPosition = null;
-  let bestStat = null;
-  for (
-    let shiftPosition = easierGears.length - harderGears.length + 1;
-    shiftPosition <= easierGears.length;
-    shiftPosition++
-  ) {
-    const ratios = joinRatioPath(
-      easierGears,
-      harderGears,
-      shiftPosition,
-      accessor
-    ).map(accessor);
-    const percentChangeSteps = [...Array(ratios.length - 1).keys()].map(
-      (index) => percentChangeFromTo(ratios[index], ratios[index + 1])
-    );
-    const stat = stddev(percentChangeSteps);
-    if (!bestStat || stat < bestStat) {
-      bestShiftPosition = shiftPosition;
-      bestStat = stat;
-    }
-  }
-
-  return bestShiftPosition;
-}
-
-function constructGears(front, cogs) {
-  return cogs.map((rear) => ({
-    front,
-    rear,
-    ratio: front / rear,
-  }));
-}
-
-export function getRemainingGears(bestPath, chainrings, cassette) {
-  return chainrings
-    .flatMap((front) => constructGears(front, cassette))
-    .filter(({ front, rear }) => {
-      if (
-        (front === chainrings[0] && rear === cassette[cassette.length - 1]) ||
-        (front === chainrings[chainrings.length - 1] && rear === cassette[0])
-      ) {
-        return false;
-      }
-      return bestPath.find((g) => g.front === front && g.rear === rear) == null;
-    });
-}
-
-export function getBestGearPath(inputChainrings, inputCogs) {
-  const chainrings = inputChainrings.slice().sort();
-  const cogs = inputCogs.slice().sort().reverse();
-
-  let path = constructGears(chainrings[0], cogs);
-  for (let i = 1; i < chainrings.length; i++) {
-    const gears = constructGears(chainrings[i], cogs);
-    const bestShiftPosition = minimumStddevShift(path, gears, (g) => g.ratio);
-    path = joinRatioPath(path, gears, bestShiftPosition, (g) => g.ratio);
-  }
-  return path;
 }
