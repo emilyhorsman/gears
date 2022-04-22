@@ -14,8 +14,7 @@ const barHeight = 10;
 const palette = ["#2E78D2", "#FF7043", "#26C6DA"];
 
 function Chart(props) {
-  const { drivetrain, bailOutRPM, minRPM, maxRPM, margin, width, height } =
-    props;
+  const { drivetrain, minRPM, maxRPM, margin, width, height } = props;
   const xScale = speedScale(props);
   const yScale = gearScale(props);
   const xMax = width - margin.left - margin.right;
@@ -60,7 +59,6 @@ function Chart(props) {
             drivetrain={drivetrain}
             xScale={xScale}
             yScale={yScale}
-            bailOutRPM={bailOutRPM}
             minRPM={minRPM}
             maxRPM={maxRPM}
             curGear={curGear}
@@ -93,7 +91,6 @@ function GearRPMSpeedBars({
   drivetrain,
   xScale,
   yScale,
-  bailOutRPM,
   minRPM,
   maxRPM,
   curGear,
@@ -196,27 +193,35 @@ function findDatum(point, { gears, xScale, yScale, minRPM, maxRPM, margin }) {
   });
 }
 
-function speedScale({ drivetrain, bailOutRPM, maxRPM, width, margin }) {
+function speedScale({ drivetrains, minRPM, maxRPM, width, margin }) {
+  const speeds = drivetrains.flatMap((drivetrain) => {
+    return [
+      drivetrain.easiestGear.perHourSpeedAtRPM(minRPM).km,
+      drivetrain.hardestGear.perHourSpeedAtRPM(maxRPM).km,
+    ];
+  });
+
   return scaleLinear({
     range: [0, width - margin.left - margin.right],
-    domain: [
-      Math.floor(
-        drivetrain.easiestGear.perHourSpeedAtRPM(bailOutRPM).km / xStep
-      ) * xStep,
-      Math.ceil(drivetrain.hardestGear.perHourSpeedAtRPM(maxRPM).km / xStep) *
-        xStep,
-    ],
+    domain: domain(speeds, 5),
   });
 }
 
-function gearScale({ drivetrain, height, margin }) {
+function gearScale({ drivetrains, height, margin }) {
+  const ratios = drivetrains.flatMap((drivetrain) => {
+    return [drivetrain.easiestGear.gainRatio, drivetrain.hardestGear.gainRatio];
+  });
   return scaleLinear({
     range: [0, height - margin.top - margin.bottom],
-    domain: [
-      Math.floor(drivetrain.easiestGear.gainRatio / 0.75) * 0.75,
-      Math.ceil(drivetrain.hardestGear.gainRatio / 0.75) * 0.75,
-    ],
+    domain: domain(ratios, 0.75),
   });
+}
+
+function domain(values, step) {
+  return [
+    Math.floor(Math.min(...values) / step) * step,
+    Math.ceil(Math.max(...values) / step) * step,
+  ];
 }
 
 export default Chart;

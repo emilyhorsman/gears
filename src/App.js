@@ -2,6 +2,32 @@ import { Drivetrain, Meters } from "./Gearing";
 import Chart from "./Chart";
 import { useEffect, useRef, useState } from "react";
 
+const drivetrains = [
+  new Drivetrain({
+    fronts: [30, 46],
+    rears: [11, 13, 15, 17, 19, 22, 25, 28, 32, 36],
+    wheelRadius: Meters(0.34),
+    crankLength: Meters(0.17),
+    useBestPath: true,
+  }),
+
+  new Drivetrain({
+    fronts: [22, 32, 44],
+    rears: [11, 13, 15, 18, 21, 24, 28, 32, 36],
+    wheelRadius: Meters(0.34),
+    crankLength: Meters(0.17),
+    useBestPath: true,
+  }),
+
+  new Drivetrain({
+    fronts: [28],
+    rears: [11, 13, 15, 17, 19, 21, 24, 28, 33, 39, 45, 51],
+    wheelRadius: Meters(0.34),
+    crankLength: Meters(0.17),
+    useBestPath: true,
+  }),
+];
+
 function App() {
   const [minRPM, setMinRPM] = useState(85);
   const [maxRPM, setMaxRPM] = useState(100);
@@ -59,6 +85,7 @@ function App() {
       </div>
 
       <Chart
+        drivetrains={drivetrains}
         drivetrain={drivetrain}
         bailOutRPM={50}
         minRPM={minRPM}
