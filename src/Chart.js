@@ -12,6 +12,7 @@ const xStep = 5;
 const blue = "#2E78D2";
 const navy = "#112E51";
 const lightestBlue = "#C1D7F2";
+const barHeight = 10;
 
 function Chart(props) {
   const { gears, bailOutRPM, minRPM, maxRPM, margin, width, height } = props;
@@ -52,8 +53,9 @@ function Chart(props) {
           />
           <AxisLeft
             scale={yScale}
-            numTicks={gears.length}
             tickComponent={LeftTickLabelComponent}
+            label="Gain Ratio"
+            labelProps={{ fontSize: 13 }}
           />
           {curGear && (
             <HoverArea
@@ -68,18 +70,6 @@ function Chart(props) {
             minRPM={minRPM}
             maxRPM={maxRPM}
             curGear={curGear}
-          />
-          <SpinOutGear
-            gears={gears}
-            xScale={xScale}
-            yScale={yScale}
-            maxRPM={maxRPM}
-          />
-          <ClimbingGear
-            gears={gears}
-            xScale={xScale}
-            yScale={yScale}
-            bailOutRPM={bailOutRPM}
           />
         </Group>
         <rect
@@ -115,24 +105,18 @@ function GearRPMSpeedBars({ gears, xScale, yScale, minRPM, maxRPM, curGear }) {
         return (
           <Fragment key={`bar-${gear.front}-${gear.rear}`}>
             {index === 0 && (
-              <BarRounded
+              <Bar
                 x={xClimb}
-                y={yScale(gear.label)}
-                height={yScale.bandwidth()}
-                radius={5}
-                bottomLeft={true}
-                topRight={true}
+                y={yScale(gear.gainRatio) - barHeight / 2}
+                height={barHeight}
                 width={x1 - xClimb}
                 fill={lightestBlue}
               />
             )}
-            <BarRounded
+            <Bar
               x={x0}
-              y={yScale(gear.label)}
-              height={yScale.bandwidth()}
-              radius={5}
-              bottomLeft={true}
-              topRight={true}
+              y={yScale(gear.gainRatio) - barHeight / 2}
+              height={barHeight}
               width={x1 - x0}
               fill={gear === curGear ? navy : blue}
             />
@@ -147,7 +131,7 @@ function SpinOutGear({ gears, xScale, yScale, maxRPM }) {
   const maxGear = maxBy(gears, ({ ratio }) => ratio);
   const speed = maxGear.speedAt1RPM * maxRPM;
   const x = xScale(speed);
-  const y = yScale(maxGear.label) + yScale.bandwidth();
+  const y = yScale(maxGear.label) + barHeight;
   const yMax = y + 40;
   return (
     <>
@@ -234,7 +218,9 @@ function HoverArea({ gear, xScale, yScale, minRPM, maxRPM, yMax }) {
         dx="0.25em"
         fontSize={13}
       >
-        {`${minSpeed.toFixed(1)} – ${maxSpeed.toFixed(1)} kmh`}
+        {`${gear.gainRatio.toFixed(2)} ${minSpeed.toFixed(
+          1
+        )} – ${maxSpeed.toFixed(1)} kmh`}
       </Text>
     </>
   );
@@ -294,8 +280,8 @@ function findDatum(point, { gears, xScale, yScale, minRPM, maxRPM, margin }) {
     if (x < x0 || x > x1) {
       return false;
     }
-    const y0 = yScale(gear.label);
-    const y1 = y0 + yScale.bandwidth();
+    const y0 = yScale(gear.gainRatio) - barHeight / 2;
+    const y1 = y0 + barHeight;
     return y >= y0 && y <= y1;
   });
 }
@@ -315,10 +301,13 @@ function speedScale({ gears, bailOutRPM, maxRPM, width, margin }) {
 }
 
 function gearScale({ gears, height, margin }) {
-  return scaleBand({
+  return scaleLinear({
     range: [0, height - margin.top - margin.bottom],
-    domain: gears.map((gear) => gear.label),
-    padding: 0.1,
+    domain: [
+      Math.floor(Math.min(...gears.map((gear) => gear.gainRatio)) / 0.75) *
+        0.75,
+      Math.ceil(Math.max(...gears.map((gear) => gear.gainRatio)) / 0.75) * 0.75,
+    ],
   });
 }
 

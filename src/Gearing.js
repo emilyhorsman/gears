@@ -1,3 +1,72 @@
+export function Meters(meters) {
+  return {
+    m: meters,
+    km: meters / 1000,
+  };
+}
+
+export class Gear {
+  constructor(params) {
+    this.params = params;
+    const { front, rear, wheelRadius, crankLength } = params;
+
+    const radiusRatio = wheelRadius.m / crankLength.m;
+    const gearRatio = front / rear;
+    this.gainRatio = radiusRatio * gearRatio;
+    // The gain ratio describes how much the bike travels per unit of travel around the crank orbit.
+    const crankOrbitCircumference = Meters(Math.PI * 2 * crankLength.m);
+    this.travelPerRevolution = Meters(
+      crankOrbitCircumference.m * this.gainRatio
+    );
+  }
+
+  speedAtRPM(rpm) {
+    return Meters(this.travelPerRevolution.m * rpm);
+  }
+
+  compare(other) {
+    return self.gainRatio - other.gainRatio;
+  }
+
+  isHarderThan(other, threshold = 1.05) {
+    return self.gainRatio / other.gainRatio > threshold;
+  }
+}
+
+export class Drivetrain {
+  constructor(fronts, rears, wheelRadius, crankLength) {
+    this.frontSize = chainrings.length;
+    this.rearSize = cogs.length;
+    this.byChainring = fronts
+      .slice()
+      .sort()
+      .map((front, frontPos) => {
+        return rears
+          .slice()
+          .sort()
+          .map((rear, rearPos) => {
+            return new Gear({
+              front,
+              rear,
+              wheelRadius,
+              crankLength,
+              frontPos,
+              rearPos,
+              drivetrain: this,
+            });
+          });
+      });
+  }
+
+  get gearsSortedByChainring() {
+    return this.byChainring.flat();
+  }
+
+  get gearsSortedWithGainRatio() {
+    return this.gearsSortedByChainring.sort((a, b) => a.compare(b));
+  }
+}
+
 function sum(arr) {
   return arr.reduce((a, b) => a + b);
 }

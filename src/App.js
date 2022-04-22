@@ -4,14 +4,20 @@ import { useEffect, useRef, useState } from "react";
 
 function calcs(gear, redundant) {
   const { front, rear, ratio } = gear;
-  const development = Math.PI * 0.68 * ratio;
-  const speedAt1RPM = (development * 60) / 1000;
-  const gearInches = 0.68 * 39.3701 * ratio;
+  const wheelRadiusInMeters = 0.34;
+  const crankLengthInMeters = 0.17;
+  const radiusRatio = wheelRadiusInMeters / crankLengthInMeters;
+  const gainRatio = radiusRatio * ratio;
+  const crankOrbitCircumferenceInMeters = Math.PI * 2 * crankLengthInMeters;
+  const metersTravelledPerRevolution =
+    crankOrbitCircumferenceInMeters * gainRatio;
+  const speedAt1RPM = (metersTravelledPerRevolution * 60) / 1000;
+
   return {
     ...gear,
     speedAt1RPM,
     label: `${front}/${rear}t`,
-    gearInchesLabel: `${gearInches.toFixed(1)}"`,
+    gainRatio,
     redundant,
   };
 }
