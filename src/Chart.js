@@ -1,6 +1,6 @@
-import { Bar, BarRounded, Line } from "@visx/shape";
+import { Bar, Line } from "@visx/shape";
 import { Group } from "@visx/group";
-import { scaleBand, scaleLinear } from "@visx/scale";
+import { scaleLinear } from "@visx/scale";
 import { Grid } from "@visx/grid";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { localPoint } from "@visx/event";
@@ -9,20 +9,9 @@ import { Text } from "@visx/text";
 import { Fragment, useState } from "react";
 
 const xStep = 5;
-const blue = "#2E78D2";
-const navy = "#112E51";
-const lightestBlue = "#C1D7F2";
-const teal = "#26C6DA";
-const darkerTeal = "#004851";
-const orange = "#FF7043";
-const darkerOrange = "#853A22";
 const barHeight = 10;
 
-const palette = [
-  [blue, navy],
-  [teal, darkerTeal],
-  [orange, darkerOrange],
-];
+const palette = ["#2E78D2", "#FF7043", "#26C6DA"];
 
 function Chart(props) {
   const { drivetrain, bailOutRPM, minRPM, maxRPM, margin, width, height } =
@@ -41,7 +30,7 @@ function Chart(props) {
           id="lines"
           height={8}
           width={8}
-          stroke={navy}
+          stroke="black"
           strokeWidth={1}
           orientation={["diagonalRightToLeft"]}
         />
@@ -120,16 +109,17 @@ function GearRPMSpeedBars({
             <Line
               from={{ x: x0, y }}
               to={{ x: x1, y }}
-              stroke={palette[gear.params.frontPos][0]}
-              strokeWidth={2}
+              stroke={palette[gear.params.frontPos]}
+              strokeWidth={3}
+              strokeLinecap="round"
             />
             <circle
               cx={(x0 + x1) / 2}
               cy={y}
               r={4}
-              stroke={palette[gear.params.frontPos][1]}
+              stroke="black"
               strokeWidth={2}
-              fill={palette[gear.params.frontPos][0]}
+              fill={palette[gear.params.frontPos]}
             />
           </Fragment>
         );
@@ -162,24 +152,6 @@ function HoverArea({ gear, xScale, yScale, minRPM, maxRPM, yMax }) {
       </Text>
     </>
   );
-}
-
-function minBy(arr, accessor) {
-  return arr.reduce((cur, candidate) => {
-    if (cur == null || accessor(candidate) < accessor(cur)) {
-      return candidate;
-    }
-    return cur;
-  }, null);
-}
-
-function maxBy(arr, accessor) {
-  return arr.reduce((cur, candidate) => {
-    if (cur == null || accessor(candidate) > accessor(cur)) {
-      return candidate;
-    }
-    return cur;
-  }, null);
 }
 
 const LeftTickLabel =

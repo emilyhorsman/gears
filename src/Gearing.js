@@ -39,7 +39,7 @@ export class Gear {
 
 export class Drivetrain {
   constructor(params) {
-    const { fronts, rears, wheelRadius, crankLength, useBestPath } = params;
+    const { fronts, rears, wheelRadius, crankLength } = params;
     this.params = params;
     this.rearSize = rears.length;
     this.byChainring = fronts
@@ -65,7 +65,7 @@ export class Drivetrain {
           });
       });
 
-    this._computeBestPath().map((gear) => {
+    this._computeBestPath().forEach((gear) => {
       gear.inBestPath = true;
     });
   }

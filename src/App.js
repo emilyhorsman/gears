@@ -1,9 +1,4 @@
-import {
-  Drivetrain,
-  getBestGearPath,
-  getRemainingGears,
-  Meters,
-} from "./Gearing";
+import { Drivetrain, Meters } from "./Gearing";
 import Chart from "./Chart";
 import { useEffect, useRef, useState } from "react";
 
