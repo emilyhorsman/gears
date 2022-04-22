@@ -49,6 +49,7 @@ export class Drivetrain {
         return rears
           .slice()
           .sort()
+          .reverse()
           .map((rear, rearPos) => {
             const gear = new Gear({
               front,

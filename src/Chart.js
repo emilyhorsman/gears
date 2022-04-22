@@ -14,11 +14,14 @@ const navy = "#112E51";
 const lightestBlue = "#C1D7F2";
 const teal = "#26C6DA";
 const darkerTeal = "#004851";
+const orange = "#FF7043";
+const darkerOrange = "#853A22";
 const barHeight = 10;
 
 const palette = [
   [blue, navy],
   [teal, darkerTeal],
+  [orange, darkerOrange],
 ];
 
 function Chart(props) {
