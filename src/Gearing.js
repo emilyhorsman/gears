@@ -173,10 +173,3 @@ function stddev(arr) {
   const mean = sum(arr) / arr.length;
   return Math.sqrt(sum(arr.map((x) => Math.pow(x - mean, 2))) / arr.length);
 }
-
-const weightScale = scaleLog([]);
-
-function weightedStddev(arr) {
-  const mean = sum(arr) / arr.length;
-  const weights = arr.map((x) => x);
-}

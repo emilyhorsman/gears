@@ -57,10 +57,6 @@ const teethScale = scaleLinear({
   clamp: true,
 });
 
-const difficultyScale = scaleSequential(interpolateLab("#C1D7F2", "#205493"))
-  .domain([10, 20])
-  .base(2);
-
 function GearGlyph({ x, y, prevGear, curGear, color, xScale }) {
   const {
     gainRatio,
@@ -80,7 +76,6 @@ function GearGlyph({ x, y, prevGear, curGear, color, xScale }) {
             to={{ x: midX + 20, y }}
             strokeWidth={3}
             strokeLinecap="round"
-            stroke={difficultyScale(increase)}
           />
           <Text
             y={y}
