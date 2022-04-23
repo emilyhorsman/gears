@@ -7,7 +7,7 @@ import { Brush } from "@visx/brush";
 import { Text } from "@visx/text";
 import { GridColumns } from "@visx/grid";
 import { Line } from "@visx/shape";
-import { scaleLog, scaleSequentialLog } from "d3-scale";
+import { scaleLog, scaleSequential } from "d3-scale";
 import { interpolateLab } from "d3-interpolate";
 
 const ChartContext = createContext({});
@@ -57,10 +57,9 @@ const teethScale = scaleLinear({
   clamp: true,
 });
 
-const difficultyScale = scaleSequentialLog(interpolateLab("#97BCE9", "#081627"))
-  .domain([1.11, 1.19])
+const difficultyScale = scaleSequential(interpolateLab("#C1D7F2", "#205493"))
+  .domain([10, 20])
   .base(2);
-const s = scaleLog().domain([1.1, 1.2]).base(2);
 
 function GearGlyph({ x, y, prevGear, curGear, color, xScale }) {
   const {
@@ -68,32 +67,35 @@ function GearGlyph({ x, y, prevGear, curGear, color, xScale }) {
     params: { front, rear },
   } = curGear;
   const increase =
-    prevGear == null ? null : curGear.multipleHarderThan(prevGear);
+    prevGear == null ? null : curGear.percentHarderThan(prevGear);
   const prevX = prevGear == null ? null : xScale(prevGear.gainRatio);
+  const midX = (x + prevX) / 2;
 
   return (
     <>
       {increase && (
         <>
           <Line
-            from={{ x: prevX, y }}
-            to={{ x: x + 0.01, y }}
-            strokeWidth={16}
+            from={{ x: midX - 20, y }}
+            to={{ x: midX + 20, y }}
+            strokeWidth={3}
+            strokeLinecap="round"
             stroke={difficultyScale(increase)}
           />
           <Text
             y={y}
-            x={(x + prevX) / 2}
+            x={midX}
             fontSize={12}
             dy="-1.25em"
             fill="black"
             verticalAnchor="middle"
             textAnchor="middle"
           >
-            {`${increase.toFixed(2)}x ->`}
+            {`${increase.toFixed(1)}%`}
           </Text>
         </>
       )}
+      <circle cx={x} cy={y} fill={color} r={8} />
       <Text
         y={y}
         x={x}

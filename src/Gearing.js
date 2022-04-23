@@ -1,3 +1,5 @@
+import { scaleLog } from "d3-scale";
+
 export function Meters(meters) {
   return {
     m: meters,
@@ -30,6 +32,10 @@ export class Gear {
 
   multipleHarderThan(other) {
     return this.gainRatio / other.gainRatio;
+  }
+
+  percentHarderThan(other) {
+    return (Math.abs(this.gainRatio - other.gainRatio) / this.gainRatio) * 100;
   }
 
   isHarderThan(other, threshold = 1.05) {
@@ -103,7 +109,7 @@ export class Drivetrain {
   }
 
   get hardestGearRelativeDifficulty() {
-    return this.hardestGear.multipleHarderThan(this.easiestGear);
+    return this.hardestGear.percentHarderThan(this.easiestGear);
   }
 
   get title() {
@@ -143,7 +149,7 @@ function computeBestShiftPos(
   ) {
     const candidatePath = joinPathAt(easierGears, harderGears, pos);
     const steps = integerRange(1, candidatePath.length).map((i) => {
-      return candidatePath[i].multipleHarderThan(candidatePath[i - 1]);
+      return candidatePath[i].percentHarderThan(candidatePath[i - 1]);
     });
     const stat = statFunc(steps);
     if (best.stat === null || statCmpFunc(stat, best.stat)) {
@@ -166,4 +172,11 @@ function sum(arr) {
 function stddev(arr) {
   const mean = sum(arr) / arr.length;
   return Math.sqrt(sum(arr.map((x) => Math.pow(x - mean, 2))) / arr.length);
+}
+
+const weightScale = scaleLog([]);
+
+function weightedStddev(arr) {
+  const mean = sum(arr) / arr.length;
+  const weights = arr.map((x) => x);
 }
