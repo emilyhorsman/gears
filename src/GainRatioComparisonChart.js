@@ -6,6 +6,9 @@ import { extent } from "d3-array";
 import { Brush } from "@visx/brush";
 import { Text } from "@visx/text";
 import { GridColumns } from "@visx/grid";
+import { Line } from "@visx/shape";
+import { scaleLog, scaleSequentialLog } from "d3-scale";
+import { interpolateLab } from "d3-interpolate";
 
 const ChartContext = createContext({});
 const palette = ["#2E78D2", "#FF7043", "#26C6DA", "#4B636E"];
@@ -54,39 +57,54 @@ const teethScale = scaleLinear({
   clamp: true,
 });
 
-function GearGlyph({
-  x,
-  y,
-  gear: {
+const difficultyScale = scaleSequentialLog(interpolateLab("#97BCE9", "#081627"))
+  .domain([1.11, 1.19])
+  .base(2);
+const s = scaleLog().domain([1.1, 1.2]).base(2);
+
+function GearGlyph({ x, y, prevGear, curGear, color, xScale }) {
+  const {
     gainRatio,
     params: { front, rear },
-  },
-  color,
-}) {
-  const rearRadius = teethScale(rear);
+  } = curGear;
+  const increase =
+    prevGear == null ? null : curGear.multipleHarderThan(prevGear);
+  const prevX = prevGear == null ? null : xScale(prevGear.gainRatio);
+
   return (
     <>
-      <Group top={y} left={x}>
-        <circle
-          r={rearRadius}
-          fill="transparent"
-          stroke={color}
-          strokeWidth={3}
-        />
-        <Text fontSize={11} verticalAnchor="middle" textAnchor="middle">
-          {rear}
-        </Text>
-        <Text
-          y={rearRadius}
-          fontSize={12}
-          dy="1em"
-          fill="black"
-          verticalAnchor="middle"
-          textAnchor="middle"
-        >
-          {gainRatio.toFixed(2)}
-        </Text>
-      </Group>
+      {increase && (
+        <>
+          <Line
+            from={{ x: prevX, y }}
+            to={{ x: x + 0.01, y }}
+            strokeWidth={16}
+            stroke={difficultyScale(increase)}
+          />
+          <Text
+            y={y}
+            x={(x + prevX) / 2}
+            fontSize={12}
+            dy="-1.25em"
+            fill="black"
+            verticalAnchor="middle"
+            textAnchor="middle"
+          >
+            {`${increase.toFixed(2)}x ->`}
+          </Text>
+        </>
+      )}
+      <Text
+        y={y}
+        x={x}
+        fontSize={12}
+        dy="1.25em"
+        fill="black"
+        verticalAnchor="middle"
+        textAnchor="middle"
+      >
+        {gainRatio.toFixed(2)}
+      </Text>
     </>
   );
 }
@@ -127,8 +145,15 @@ function ZoomedView({ drivetrains, endY, selectedDomain }) {
             yScale={yScale}
             key={drivetrain.title}
           >
-            {(x, y, gear) => (
-              <GearGlyph x={x} y={y} gear={gear} color={palette[index]} />
+            {(x, y, curGear, prevGear, xScale) => (
+              <GearGlyph
+                xScale={xScale}
+                x={x}
+                y={y}
+                curGear={curGear}
+                prevGear={prevGear}
+                color={palette[index]}
+              />
             )}
           </Points>
         );
@@ -205,10 +230,14 @@ function GlobalView({
 function Points({ drivetrain, xScale, yScale, children }) {
   return (
     <>
-      {drivetrain.gears.map((gear) => {
+      {drivetrain.gears.map((gear, index) => {
         const x = xScale(gear.gainRatio);
         const y = yScale(drivetrain.title) + yScale.bandwidth() / 2;
-        return <Fragment key={gear.gainRatio}>{children(x, y, gear)}</Fragment>;
+        return (
+          <Fragment key={gear.gainRatio}>
+            {children(x, y, gear, drivetrain.gears[index - 1], xScale)}
+          </Fragment>
+        );
       })}
     </>
   );
