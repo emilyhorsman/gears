@@ -1,29 +1,32 @@
 import { Bar, Line } from "@visx/shape";
 import { Group } from "@visx/group";
 import { scaleLinear } from "@visx/scale";
-import { Grid } from "@visx/grid";
+import { Grid, GridColumns } from "@visx/grid";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { localPoint } from "@visx/event";
 import { PatternLines } from "@visx/pattern";
 import { Text } from "@visx/text";
 import { Fragment, useState } from "react";
+import { GlyphCircle, GlyphCross, GlyphWye } from "@visx/glyph";
 
-const xStep = 5;
 const barHeight = 10;
-
+const glyphs = [GlyphCircle, GlyphWye, GlyphCross];
 const palette = ["#2E78D2", "#FF7043", "#26C6DA"];
 
 function Chart(props) {
-  const { drivetrain, minRPM, maxRPM, margin, width, height } = props;
+  const { drivetrains, minRPM, maxRPM, margin, width, height } = props;
   const xScale = speedScale(props);
-  const yScale = gearScale(props);
+  const yScales = gearScales(props);
   const xMax = width - margin.left - margin.right;
   const yMax = height - margin.top - margin.bottom;
   const LeftTickLabelComponent = LeftTickLabel(margin);
   const [curGear, setCurGear] = useState(null);
 
+  const gears = drivetrains.flatMap((drivetrain) => drivetrain.gears);
+
   return (
     <>
+      <Legend drivetrains={drivetrains} />
       <svg width={width} height={height}>
         <PatternLines
           id="lines"
@@ -35,7 +38,7 @@ function Chart(props) {
         />
 
         <Group left={margin.left} top={margin.top}>
-          <Grid xScale={xScale} yScale={yScale} width={xMax} height={yMax} />
+          <GridColumns scale={xScale} width={xMax} height={yMax} />
           <AxisBottom
             scale={xScale}
             top={yMax}
@@ -43,26 +46,30 @@ function Chart(props) {
             label="Speed (kmh)"
             labelProps={{ fontSize: 13 }}
           />
-          <AxisLeft
-            scale={yScale}
-            tickComponent={LeftTickLabelComponent}
-            label="Gain Ratio"
-            labelProps={{ fontSize: 13 }}
-          />
-          {curGear && (
-            <HoverArea
-              gear={curGear}
-              {...{ xScale, yScale, minRPM, maxRPM, yMax }}
-            />
-          )}
-          <GearRPMSpeedBars
-            drivetrain={drivetrain}
-            xScale={xScale}
-            yScale={yScale}
-            minRPM={minRPM}
-            maxRPM={maxRPM}
-            curGear={curGear}
-          />
+
+          {drivetrains.map((drivetrain, index) => {
+            const yScale = yScales[index];
+            return (
+              <Fragment key={index}>
+                {curGear && (
+                  <HoverArea
+                    gear={curGear}
+                    {...{ xScale, yScale, minRPM, maxRPM, yMax }}
+                  />
+                )}
+                <GearRPMSpeedBars
+                  gears={drivetrain.gears}
+                  xScale={xScale}
+                  yScale={yScale}
+                  minRPM={minRPM}
+                  maxRPM={maxRPM}
+                  curGear={curGear}
+                  color={palette[index]}
+                  GlyphComponent={glyphs[index]}
+                />
+              </Fragment>
+            );
+          })}
         </Group>
         <rect
           width={width}
@@ -70,14 +77,14 @@ function Chart(props) {
           fill="transparent"
           onMouseMove={(event) => {
             const point = localPoint(event);
-            const datum = findDatum(point, {
-              gears: drivetrain.gears,
+            const datum = null; /*findDatum(point, {
+              gears,
               xScale,
               yScale,
               minRPM,
               maxRPM,
               margin,
-            });
+            });*/
             setCurGear(datum);
           }}
           onMouseLeave={() => setCurGear(null)}
@@ -88,35 +95,38 @@ function Chart(props) {
 }
 
 function GearRPMSpeedBars({
-  drivetrain,
+  gears,
   xScale,
   yScale,
   minRPM,
   maxRPM,
   curGear,
+  color,
 }) {
   return (
     <>
-      {drivetrain.gears.map((gear) => {
+      {gears.map((gear) => {
         const x0 = xScale(gear.perHourSpeedAtRPM(minRPM).km);
         const x1 = xScale(gear.perHourSpeedAtRPM(maxRPM).km);
         const y = yScale(gear.gainRatio);
+        const GlyphComponent = glyphs[gear.params.frontPos];
+
         return (
           <Fragment key={`${gear.params.frontPos}-${gear.params.rearPos}`}>
             <Line
               from={{ x: x0, y }}
               to={{ x: x1, y }}
-              stroke={palette[gear.params.frontPos]}
+              stroke={color}
               strokeWidth={3}
               strokeLinecap="round"
             />
-            <circle
-              cx={(x0 + x1) / 2}
-              cy={y}
-              r={4}
-              stroke="black"
+            <GlyphComponent
+              left={(x0 + x1) / 2}
+              top={y}
+              size={50}
+              fill={color}
               strokeWidth={2}
-              fill={palette[gear.params.frontPos]}
+              stroke="black"
             />
           </Fragment>
         );
@@ -207,13 +217,23 @@ function speedScale({ drivetrains, minRPM, maxRPM, width, margin }) {
   });
 }
 
-function gearScale({ drivetrains, height, margin }) {
+function gearScales({ drivetrains, height, margin }) {
+  const chartHeight = height - margin.top - margin.bottom;
+  const gap = 0.15;
+  const base = 1 - (drivetrains.length - 1) * gap;
   const ratios = drivetrains.flatMap((drivetrain) => {
     return [drivetrain.easiestGear.gainRatio, drivetrain.hardestGear.gainRatio];
   });
-  return scaleLinear({
-    range: [0, height - margin.top - margin.bottom],
-    domain: domain(ratios, 0.75),
+  const globalDomain = domain(ratios, 0.75);
+
+  return drivetrains.map((drivetrain, index) => {
+    const y0 = chartHeight * gap * index;
+    const y1 = y0 + chartHeight * base;
+
+    return scaleLinear({
+      range: [y0, y1],
+      domain: globalDomain,
+    });
   });
 }
 
@@ -222,6 +242,25 @@ function domain(values, step) {
     Math.floor(Math.min(...values) / step) * step,
     Math.ceil(Math.max(...values) / step) * step,
   ];
+}
+
+function Legend({ drivetrains }) {
+  return (
+    <div className="legend">
+      {drivetrains.map((drivetrain, index) => {
+        return (
+          <div key={index} className="legend-item">
+            <span
+              className="legend-chip"
+              style={{ backgroundColor: palette[index] }}
+              role="presentation"
+            />
+            <span>{drivetrain.title}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export default Chart;

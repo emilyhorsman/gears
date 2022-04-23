@@ -93,6 +93,13 @@ export class Drivetrain {
     return this.gearsGroupedByChainring;
   }
 
+  get title() {
+    const { fronts, rears } = this.params;
+    return `${fronts.length}x${rears.length} ${fronts.join("/")}t ${rears[0]}-${
+      rears[rears.length - 1]
+    }`;
+  }
+
   _computeBestPath() {
     return this.byChainring.reduce((path, gears) => {
       const bestShiftPos = computeBestShiftPos(path, gears);

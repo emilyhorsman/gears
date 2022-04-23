@@ -1,3 +1,4 @@
+import "./App.css";
 import { Drivetrain, Meters } from "./Gearing";
 import Chart from "./Chart";
 import { useEffect, useRef, useState } from "react";
@@ -26,7 +27,7 @@ const drivetrains = [
     crankLength: Meters(0.17),
     useBestPath: true,
   }),
-];
+].sort((a, b) => a.easiestGear.gainRatio - b.easiestGear.gainRatio);
 
 function App() {
   const [minRPM, setMinRPM] = useState(85);
@@ -90,9 +91,9 @@ function App() {
         bailOutRPM={50}
         minRPM={minRPM}
         maxRPM={maxRPM}
-        margin={{ top: 50, right: 10, bottom: 50, left: 60 }}
+        margin={{ top: 0, right: 10, bottom: 50, left: 10 }}
         width={1000}
-        height={400}
+        height={500}
       />
     </>
   );
