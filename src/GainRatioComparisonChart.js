@@ -26,8 +26,8 @@ function GainRatioComparisonChart({ drivetrains, width, height }) {
     gears.map(({ gainRatio }) => gainRatio)
   );
   const globalDomain = extent(ratios);
-  const brushHeight = 60;
-  const brushGap = 30;
+  const brushHeight = 50;
+  const brushGap = 50;
 
   return (
     <ChartContext.Provider value={{ width, height, xMax, yMax }}>
@@ -49,35 +49,50 @@ function GainRatioComparisonChart({ drivetrains, width, height }) {
   );
 }
 
-function FaintLine(props) {
-  return (
-    <Line {...props} stroke="#999" strokeWidth={1} strokeLinecap="round" />
-  );
-}
+const teethScale = scaleLinear({
+  domain: [9, 52],
+  range: [6, 14],
+  clamp: true,
+});
 
-function Label({ text, x0, x1, y, textWidth = 40 }) {
-  const middle = (x0 + x1) / 2;
-  const lineWidth = Math.max(0, x1 - x0 - textWidth) / 2;
-
+function GearGlyph({ x, y, front, rear, color }) {
+  const frontRadius = teethScale(front);
+  const rearRadius = teethScale(rear);
   return (
     <>
-      <FaintLine from={{ x: x0, y }} to={{ x: x0 + lineWidth, y }} />
-      <FaintLine
-        from={{
-          x: x1 - lineWidth,
-          y,
-        }}
-        to={{ x: x1, y }}
-      />
-      <Text
-        fontSize={13}
-        x={middle}
-        y={y}
-        verticalAnchor="middle"
-        textAnchor="middle"
-      >
-        {text}
-      </Text>
+      <circle r={2} cx={x} cy={y} fill="black" />
+      <Group top={y - 18} left={x}>
+        <circle
+          r={frontRadius}
+          fill="transparent"
+          stroke={color}
+          strokeWidth={2}
+          cx={frontRadius}
+        />
+        <circle
+          r={rearRadius}
+          cx={-rearRadius}
+          fill="transparent"
+          stroke={color}
+          strokeWidth={2}
+        />
+        <Text
+          x={-rearRadius}
+          fontSize={11}
+          verticalAnchor="middle"
+          textAnchor="middle"
+        >
+          {rear}
+        </Text>
+        <Text
+          x={frontRadius}
+          fontSize={11}
+          verticalAnchor="middle"
+          textAnchor="middle"
+        >
+          {front}
+        </Text>
+      </Group>
     </>
   );
 }
@@ -111,56 +126,36 @@ function ZoomedView({ drivetrains, endY, selectedDomain }) {
       />
 
       {drivetrains.map((drivetrain, index) => {
-        const topY = yScale(drivetrain.title) + yScale.bandwidth() / 2 - 35;
         return (
-          <Fragment key={drivetrain.title}>
-            {drivetrain.byChainring.map((gears) => {
-              const best = gears.filter(({ inBestPath, gainRatio }) => {
-                return (
-                  inBestPath &&
-                  gainRatio >= selectedDomain[0] &&
-                  gainRatio <= selectedDomain[1]
-                );
-              });
-              if (!best.length) {
-                return null;
-              }
-              const x0 = xScale(best[0].gainRatio) - 6;
-              const x1 = xScale(best[best.length - 1].gainRatio) + 6;
-              const text = `${best[0].params.front}t`;
-              return <Label key={text} x0={x0} x1={x1} y={topY} text={text} />;
-            })}
-
-            <Points drivetrain={drivetrain} xScale={xScale} yScale={yScale}>
-              {(x, y, gear) => (
-                <>
-                  <circle cx={x} cy={y} r={6} fill={palette[index]} />
-                  <Text
-                    y={y - 3}
-                    x={x}
-                    fontSize={12}
-                    dy="-2em"
-                    fill="black"
-                    verticalAnchor="middle"
-                    textAnchor="middle"
-                  >
-                    {gear.params.rear}
-                  </Text>
-                  <Text
-                    y={y - 3}
-                    x={x}
-                    fontSize={12}
-                    dy="-1em"
-                    fill="black"
-                    verticalAnchor="middle"
-                    textAnchor="middle"
-                  >
-                    {gear.gainRatio.toFixed(2)}
-                  </Text>
-                </>
-              )}
-            </Points>
-          </Fragment>
+          <Points
+            drivetrain={drivetrain}
+            xScale={xScale}
+            yScale={yScale}
+            key={drivetrain.title}
+          >
+            {(x, y, { params: { front, rear }, gainRatio }) => (
+              <Fragment>
+                <GearGlyph
+                  x={x}
+                  y={y}
+                  front={front}
+                  rear={rear}
+                  color={palette[index]}
+                />
+                <Text
+                  y={y}
+                  x={x}
+                  fontSize={12}
+                  dy="1em"
+                  fill="black"
+                  verticalAnchor="middle"
+                  textAnchor="middle"
+                >
+                  {gainRatio.toFixed(2)}
+                </Text>
+              </Fragment>
+            )}
+          </Points>
         );
       })}
     </>
