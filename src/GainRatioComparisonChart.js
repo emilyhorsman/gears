@@ -6,7 +6,6 @@ import { extent } from "d3-array";
 import { Brush } from "@visx/brush";
 import { Text } from "@visx/text";
 import { GridColumns } from "@visx/grid";
-import { Line } from "@visx/shape";
 
 const ChartContext = createContext({});
 const palette = ["#2E78D2", "#FF7043", "#26C6DA", "#4B636E"];
@@ -51,46 +50,41 @@ function GainRatioComparisonChart({ drivetrains, width, height }) {
 
 const teethScale = scaleLinear({
   domain: [9, 52],
-  range: [6, 14],
+  range: [8, 20],
   clamp: true,
 });
 
-function GearGlyph({ x, y, front, rear, color }) {
-  const frontRadius = teethScale(front);
+function GearGlyph({
+  x,
+  y,
+  gear: {
+    gainRatio,
+    params: { front, rear },
+  },
+  color,
+}) {
   const rearRadius = teethScale(rear);
   return (
     <>
-      <circle r={2} cx={x} cy={y} fill="black" />
-      <Group top={y - 18} left={x}>
-        <circle
-          r={frontRadius}
-          fill="transparent"
-          stroke={color}
-          strokeWidth={2}
-          cx={frontRadius}
-        />
+      <Group top={y} left={x}>
         <circle
           r={rearRadius}
-          cx={-rearRadius}
           fill="transparent"
           stroke={color}
-          strokeWidth={2}
+          strokeWidth={3}
         />
-        <Text
-          x={-rearRadius}
-          fontSize={11}
-          verticalAnchor="middle"
-          textAnchor="middle"
-        >
+        <Text fontSize={11} verticalAnchor="middle" textAnchor="middle">
           {rear}
         </Text>
         <Text
-          x={frontRadius}
-          fontSize={11}
+          y={rearRadius}
+          fontSize={12}
+          dy="1em"
+          fill="black"
           verticalAnchor="middle"
           textAnchor="middle"
         >
-          {front}
+          {gainRatio.toFixed(2)}
         </Text>
       </Group>
     </>
@@ -133,27 +127,8 @@ function ZoomedView({ drivetrains, endY, selectedDomain }) {
             yScale={yScale}
             key={drivetrain.title}
           >
-            {(x, y, { params: { front, rear }, gainRatio }) => (
-              <Fragment>
-                <GearGlyph
-                  x={x}
-                  y={y}
-                  front={front}
-                  rear={rear}
-                  color={palette[index]}
-                />
-                <Text
-                  y={y}
-                  x={x}
-                  fontSize={12}
-                  dy="1em"
-                  fill="black"
-                  verticalAnchor="middle"
-                  textAnchor="middle"
-                >
-                  {gainRatio.toFixed(2)}
-                </Text>
-              </Fragment>
+            {(x, y, gear) => (
+              <GearGlyph x={x} y={y} gear={gear} color={palette[index]} />
             )}
           </Points>
         );
