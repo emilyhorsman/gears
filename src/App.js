@@ -64,12 +64,6 @@ function App() {
   return (
     <>
       <Table drivetrains={drivetrains} />
-      <GainRatio drivetrains={drivetrains} width={800} height={500} />
-      <GainRatioComparisonChart
-        drivetrains={drivetrains}
-        width={800}
-        height={500}
-      />
     </>
   );
 

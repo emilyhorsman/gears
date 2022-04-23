@@ -35,7 +35,7 @@ export class Gear {
   }
 
   percentHarderThan(other) {
-    return Math.abs(this.gainRatio - other.gainRatio) / this.gainRatio;
+    return Math.abs(this.gainRatio - other.gainRatio) / other.gainRatio;
   }
 
   isHarderThan(other, threshold = 1.05) {

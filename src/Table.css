@@ -1,9 +1,22 @@
 .table {
   display: grid;
-  grid-template-columns: repeat(20, 1fr);
-  grid-gap: 5px;
+  grid-gap: 2px;
+  font-size: 16px;
 }
 
 .title {
   grid-column: 1 / -1;
+  margin-top: 10px;
+  font-size: 0.8em;
+  text-align: right;
+}
+
+.best {
+  background-color: #c1d7f2;
+}
+
+.gear,
+.front,
+.rear {
+  padding: 10px;
 }
