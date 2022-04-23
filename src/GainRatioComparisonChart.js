@@ -3,16 +3,17 @@ import { scaleBand, scaleLinear } from "@visx/scale";
 import { createContext, useContext, Fragment, useState } from "react";
 import { AxisBottom, AxisTop } from "@visx/axis";
 import { extent } from "d3-array";
-import { PatternLines } from "@visx/pattern";
 import { Brush } from "@visx/brush";
+import { Text } from "@visx/text";
+import { GridColumns } from "@visx/grid";
 
 const ChartContext = createContext({});
 
 const margin = {
   top: 40,
   bottom: 30,
-  right: 10,
-  left: 10,
+  right: 15,
+  left: 15,
 };
 
 function GainRatioComparisonChart({ drivetrains, width, height }) {
@@ -60,7 +61,7 @@ function ZoomedView({ drivetrains, endY, selectedDomain }) {
 
   return (
     <>
-      <AxisTop scale={xScale} top={0} label="Gain Ratio" />
+      <AxisTop scale={xScale} top={0} tickComponent={TickLabel} />
 
       {drivetrains.map((drivetrain) => {
         return (
@@ -100,13 +101,15 @@ function GlobalView({
     nice: true,
   });
   const yScale = scaleBand({
-    range: [yMax - height, yMax],
+    range: [0, height],
     domain: drivetrains.map((drivetrain) => drivetrain.title),
     padding: 0.1,
   });
 
   return (
-    <>
+    <Group top={yMax - height}>
+      <GridColumns scale={xScale} width={xMax} height={height} />
+
       {drivetrains.map((drivetrain) => {
         return (
           <Points
@@ -127,42 +130,31 @@ function GlobalView({
         );
       })}
 
-      <AxisBottom scale={xScale} top={yMax} />
+      <AxisBottom scale={xScale} top={height} tickComponent={TickLabel} />
 
-      <PatternLines
-        id="brush"
-        height={8}
-        width={8}
-        stroke="black"
-        strokeWidth={1}
-        orientation={["diagonal"]}
+      <Brush
+        xScale={xScale}
+        yScale={yScale}
+        width={xMax}
+        height={height}
+        brushDirection="horizontal"
+        initialBrushPosition={{
+          start: { x: xScale(selectedDomain[0]) },
+          end: { x: xScale(selectedDomain[1]) },
+        }}
+        onChange={(domain) => {
+          if (!domain) {
+            return;
+          }
+          const { x0, x1 } = domain;
+          setSelectedDomain([
+            Math.max(x0, xScale.domain()[0]),
+            Math.min(x1, xScale.domain()[1]),
+          ]);
+        }}
+        useWindowMoveEvents
       />
-      <Group top={yMax - height}>
-        <Brush
-          xScale={xScale}
-          yScale={yScale}
-          width={xMax}
-          height={height}
-          brushDirection="horizontal"
-          initialBrushPosition={{
-            start: { x: xScale(selectedDomain[0]) },
-            end: { x: xScale(selectedDomain[1]) },
-          }}
-          selectedBoxStyle={{ fill: "url(#brush)", stroke: "magenta" }}
-          onChange={(domain) => {
-            if (!domain) {
-              return;
-            }
-            const { x0, x1 } = domain;
-            setSelectedDomain([
-              Math.max(x0, xScale.domain()[0]),
-              Math.min(x1, xScale.domain()[1]),
-            ]);
-          }}
-          //useWindowMoveEvents
-        />
-      </Group>
-    </>
+    </Group>
   );
 }
 
@@ -181,11 +173,19 @@ function Points({ drivetrain, xScale, yScale, children }) {
 function ChartShell({ children }) {
   const { width, height } = useContext(ChartContext);
   return (
-    <svg width={width} height={height} style={{ border: "1px solid black" }}>
+    <svg width={width} height={height}>
       <Group left={margin.left} top={margin.top}>
         {children}
       </Group>
     </svg>
+  );
+}
+
+function TickLabel({ dy, x, y, textAnchor, formattedValue }) {
+  return (
+    <Text x={x} y={y} dy={dy} fontSize={13} textAnchor={textAnchor}>
+      {formattedValue}
+    </Text>
   );
 }
 
