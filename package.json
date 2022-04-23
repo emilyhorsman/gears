@@ -18,6 +18,7 @@
     "@visx/shape": "^2.4.0",
     "@visx/text": "^2.3.0",
     "@visx/tooltip": "^2.8.0",
+    "@visx/xychart": "^2.9.0",
     "d3-array": "^3.1.6",
     "d3-color": "^3.1.0",
     "d3-interpolate": "^3.0.1",

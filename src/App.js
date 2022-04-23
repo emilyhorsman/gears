@@ -3,11 +3,13 @@ import { Drivetrain, Meters } from "./Gearing";
 import Chart, { Legend } from "./Chart";
 import { useEffect, useRef, useState } from "react";
 import Table from "./Table";
+import GainRatio from "./GainRatio";
 import GainRatioChart from "./Chart";
 import GainRatioComparisonChart from "./GainRatioComparisonChart";
 
 const drivetrains = [
   new Drivetrain({
+    id: 0,
     fronts: [30, 46],
     rears: [11, 13, 15, 17, 19, 22, 25, 28, 32, 36],
     wheelRadius: Meters(0.34),
@@ -16,6 +18,7 @@ const drivetrains = [
   }),
 
   new Drivetrain({
+    id: 1,
     fronts: [22, 32, 44],
     rears: [11, 13, 15, 18, 21, 24, 28, 32, 36],
     wheelRadius: Meters(0.34),
@@ -24,6 +27,7 @@ const drivetrains = [
   }),
 
   new Drivetrain({
+    id: 2,
     fronts: [28],
     rears: [11, 13, 15, 17, 19, 21, 24, 28, 33, 39, 45, 51],
     wheelRadius: Meters(0.34),
@@ -32,13 +36,14 @@ const drivetrains = [
   }),
 
   new Drivetrain({
+    id: 3,
     fronts: [28],
     rears: [11, 13, 15, 17, 19, 22, 25, 28, 32, 36, 42, 50],
     wheelRadius: Meters(0.34),
     crankLength: Meters(0.17),
     useBestPath: true,
   }),
-].sort((a, b) => a.easiestGear.gainRatio - b.easiestGear.gainRatio);
+];
 
 function App() {
   const [minRPM, setMinRPM] = useState(85);
@@ -56,7 +61,17 @@ function App() {
     useBestPath,
   });
 
-  return <Table drivetrains={drivetrains} />;
+  return (
+    <>
+      <Table drivetrains={drivetrains} />
+      <GainRatio drivetrains={drivetrains} width={800} height={500} />
+      <GainRatioComparisonChart
+        drivetrains={drivetrains}
+        width={800}
+        height={500}
+      />
+    </>
+  );
 
   return (
     <>

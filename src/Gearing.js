@@ -55,6 +55,11 @@ export class Gear {
     const { frontPos, rearPos } = this.params;
     return `${frontPos}_${rearPos}`;
   }
+
+  get drivetrainFrontKey() {
+    const { drivetrain, front } = this.params;
+    return `${drivetrain.params.id} ${front}`;
+  }
 }
 
 export class Drivetrain {
