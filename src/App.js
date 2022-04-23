@@ -1,6 +1,6 @@
 import "./App.css";
 import { Drivetrain, Meters } from "./Gearing";
-import Chart from "./Chart";
+import Chart, { Legend } from "./Chart";
 import { useEffect, useRef, useState } from "react";
 
 const drivetrains = [
@@ -23,6 +23,14 @@ const drivetrains = [
   new Drivetrain({
     fronts: [28],
     rears: [11, 13, 15, 17, 19, 21, 24, 28, 33, 39, 45, 51],
+    wheelRadius: Meters(0.34),
+    crankLength: Meters(0.17),
+    useBestPath: true,
+  }),
+
+  new Drivetrain({
+    fronts: [28],
+    rears: [11, 13, 15, 17, 19, 22, 25, 28, 32, 36, 42, 50],
     wheelRadius: Meters(0.34),
     crankLength: Meters(0.17),
     useBestPath: true,
@@ -85,13 +93,15 @@ function App() {
         </label>
       </div>
 
+      <Legend drivetrains={drivetrains} />
+
       <Chart
         drivetrains={drivetrains}
         drivetrain={drivetrain}
         bailOutRPM={50}
         minRPM={minRPM}
         maxRPM={maxRPM}
-        margin={{ top: 0, right: 10, bottom: 50, left: 10 }}
+        margin={{ top: 10, right: 10, bottom: 50, left: 20 }}
         width={1000}
         height={500}
       />

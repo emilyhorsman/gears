@@ -35,6 +35,10 @@ export class Gear {
   isHarderThan(other, threshold = 1.05) {
     return this.multipleHarderThan(other) > threshold;
   }
+
+  get multipleHarderThanEasiest() {
+    return this.multipleHarderThan(this.params.drivetrain.easiestGear);
+  }
 }
 
 export class Drivetrain {
@@ -91,6 +95,10 @@ export class Drivetrain {
       return this.sortedGears.filter((gear) => gear.inBestPath);
     }
     return this.gearsGroupedByChainring;
+  }
+
+  get hardestGearRelativeDifficulty() {
+    return this.hardestGear.multipleHarderThan(this.easiestGear);
   }
 
   get title() {

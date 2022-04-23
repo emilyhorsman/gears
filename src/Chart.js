@@ -1,6 +1,6 @@
 import { Bar, Line } from "@visx/shape";
 import { Group } from "@visx/group";
-import { scaleLinear } from "@visx/scale";
+import { scaleBand, scaleLog, scaleLinear } from "@visx/scale";
 import { Grid, GridColumns } from "@visx/grid";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { localPoint } from "@visx/event";
@@ -11,7 +11,71 @@ import { GlyphCircle, GlyphCross, GlyphWye } from "@visx/glyph";
 
 const barHeight = 10;
 const glyphs = [GlyphCircle, GlyphWye, GlyphCross];
-const palette = ["#2E78D2", "#FF7043", "#26C6DA"];
+const palette = ["#2E78D2", "#FF7043", "#26C6DA", "#4B636E"];
+
+function GainRatioChart(props) {
+  const { drivetrains, margin, width } = props;
+  const height = 300;
+  const xMax = width - margin.left - margin.right;
+  const yMax = height - margin.top - margin.bottom;
+  const multiples = drivetrains.map(
+    (drivetrain) => drivetrain.hardestGear.multipleHarderThanEasiestGear
+  );
+  const ratios = drivetrains.flatMap((drivetrain) => {
+    return [drivetrain.easiestGear.gainRatio, drivetrain.hardestGear.gainRatio];
+  });
+  const globalDomain = domain(ratios, 1);
+  const xScale = scaleLog({
+    range: [0, xMax],
+    domain: [Math.min(...ratios), Math.max(...ratios)],
+    nice: true,
+    base: 2,
+  });
+  const yScale = scaleBand({
+    range: [0, yMax],
+    domain: drivetrains.map((drivetrain) => drivetrain.title),
+  });
+
+  return (
+    <svg width={width} height={height}>
+      <Group left={margin.left} top={margin.top}>
+        <AxisBottom
+          scale={xScale}
+          top={yMax}
+          tickComponent={BottomTickLabel}
+          label="Gain Ratio"
+          labelProps={{ fontSize: 13 }}
+        />
+        <GridColumns scale={xScale} width={xMax} height={yMax} />
+
+        {drivetrains.map((drivetrain, index) => (
+          <Fragment key={drivetrain.title}>
+            {drivetrain.gears.map((gear) => {
+              const x = xScale(gear.gainRatio);
+              const y = yScale(drivetrain.title) + yScale.bandwidth() / 2;
+              return (
+                <Fragment key={gear.gainRatio}>
+                  <circle cx={x} cy={y} r={6} fill={palette[index]} />
+                  <Text
+                    y={y + 6}
+                    x={x}
+                    fontSize={12}
+                    dy="0.25em"
+                    fill="black"
+                    verticalAnchor="start"
+                    textAnchor="middle"
+                  >
+                    {gear.gainRatio.toFixed(2)}
+                  </Text>
+                </Fragment>
+              );
+            })}
+          </Fragment>
+        ))}
+      </Group>
+    </svg>
+  );
+}
 
 function Chart(props) {
   const { drivetrains, minRPM, maxRPM, margin, width, height } = props;
@@ -27,6 +91,8 @@ function Chart(props) {
   return (
     <>
       <Legend drivetrains={drivetrains} />
+      <GainRatioChart {...props} />
+      <br />
       <svg width={width} height={height}>
         <PatternLines
           id="lines"
@@ -244,7 +310,7 @@ function domain(values, step) {
   ];
 }
 
-function Legend({ drivetrains }) {
+export function Legend({ drivetrains }) {
   return (
     <div className="legend">
       {drivetrains.map((drivetrain, index) => {
@@ -263,4 +329,4 @@ function Legend({ drivetrains }) {
   );
 }
 
-export default Chart;
+export default GainRatioChart;
