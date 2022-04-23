@@ -2,6 +2,7 @@ import "./App.css";
 import { Drivetrain, Meters } from "./Gearing";
 import Chart, { Legend } from "./Chart";
 import { useEffect, useRef, useState } from "react";
+import Table from "./Table";
 import GainRatioChart from "./Chart";
 import GainRatioComparisonChart from "./GainRatioComparisonChart";
 
@@ -55,13 +56,7 @@ function App() {
     useBestPath,
   });
 
-  return (
-    <GainRatioComparisonChart
-      width={1000}
-      height={500}
-      drivetrains={drivetrains}
-    />
-  );
+  return <Table drivetrains={drivetrains} />;
 
   return (
     <>

@@ -35,7 +35,7 @@ export class Gear {
   }
 
   percentHarderThan(other) {
-    return (Math.abs(this.gainRatio - other.gainRatio) / this.gainRatio) * 100;
+    return Math.abs(this.gainRatio - other.gainRatio) / this.gainRatio;
   }
 
   isHarderThan(other, threshold = 1.05) {
@@ -49,6 +49,11 @@ export class Gear {
   get label() {
     const { front, rear } = this.params;
     return `${front}/${rear}t`;
+  }
+
+  get key() {
+    const { frontPos, rearPos } = this.params;
+    return `${frontPos}_${rearPos}`;
   }
 }
 
@@ -117,6 +122,10 @@ export class Drivetrain {
     return `${fronts.length}x${rears.length} ${fronts.join("/")}t ${rears[0]}-${
       rears[rears.length - 1]
     }`;
+  }
+
+  get ratioExtent() {
+    return [this.easiestGear.gainRatio, this.hardestGear.gainRatio];
   }
 
   _computeBestPath() {

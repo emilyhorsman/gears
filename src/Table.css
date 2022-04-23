@@ -1,0 +1,9 @@
+.table {
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  grid-gap: 5px;
+}
+
+.title {
+  grid-column: 1 / -1;
+}
