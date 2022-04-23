@@ -39,6 +39,11 @@ export class Gear {
   get multipleHarderThanEasiest() {
     return this.multipleHarderThan(this.params.drivetrain.easiestGear);
   }
+
+  get label() {
+    const { front, rear } = this.params;
+    return `${front}/${rear}t`;
+  }
 }
 
 export class Drivetrain {

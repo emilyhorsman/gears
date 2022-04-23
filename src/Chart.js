@@ -34,6 +34,8 @@ function GainRatioChart(props) {
   const yScale = scaleBand({
     range: [0, yMax],
     domain: drivetrains.map((drivetrain) => drivetrain.title),
+    paddingOuter: 0.2,
+    align: 0,
   });
 
   return (
@@ -66,6 +68,17 @@ function GainRatioChart(props) {
                     textAnchor="middle"
                   >
                     {gear.gainRatio.toFixed(2)}
+                  </Text>
+                  <Text
+                    y={y + 6}
+                    x={x}
+                    fontSize={12}
+                    dy="1.25em"
+                    fill="black"
+                    verticalAnchor="start"
+                    textAnchor="middle"
+                  >
+                    {gear.params.rear}
                   </Text>
                 </Fragment>
               );
