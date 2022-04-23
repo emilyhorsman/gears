@@ -2,6 +2,8 @@ import "./App.css";
 import { Drivetrain, Meters } from "./Gearing";
 import Chart, { Legend } from "./Chart";
 import { useEffect, useRef, useState } from "react";
+import GainRatioChart from "./Chart";
+import GainRatioComparisonChart from "./GainRatioComparisonChart";
 
 const drivetrains = [
   new Drivetrain({
@@ -52,6 +54,14 @@ function App() {
     crankLength: Meters(0.17),
     useBestPath,
   });
+
+  return (
+    <GainRatioComparisonChart
+      width={1000}
+      height={500}
+      drivetrains={drivetrains}
+    />
+  );
 
   return (
     <>
