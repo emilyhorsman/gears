@@ -1,16 +1,6 @@
-import { Line, LinePath } from "@visx/shape";
-import { Text } from "@visx/text";
-import { curveLinear } from "d3-shape";
 import { Brush } from "@visx/brush";
 
-import {
-  Grid,
-  GlyphSeries,
-  LineSeries,
-  XYChart,
-  Axis,
-  DataContext,
-} from "@visx/xychart";
+import { GlyphSeries, XYChart, Axis, DataContext } from "@visx/xychart";
 import { useState, useContext, Fragment } from "react";
 
 const accessors = {
@@ -19,7 +9,7 @@ const accessors = {
 };
 
 function GainRatio({ drivetrains, width, height }) {
-  const [selectedDomain, setSelectedDomain] = useState([1, 4]);
+  const [selectedDomain, setSelectedDomain] = useState([1, 3]);
 
   const yDomain = drivetrains
     .flatMap((drivetrain) => {
@@ -31,6 +21,13 @@ function GainRatio({ drivetrains, width, height }) {
 
   return (
     <>
+      <SelectedView
+        drivetrains={drivetrains}
+        width={width}
+        height={height}
+        selectedDomain={selectedDomain}
+        yDomain={yDomain}
+      />
       <SelectionView
         drivetrains={drivetrains}
         width={width}
@@ -39,6 +36,33 @@ function GainRatio({ drivetrains, width, height }) {
         setSelectedDomain={setSelectedDomain}
       />
     </>
+  );
+}
+
+function SelectedView({ drivetrains, width, height, selectedDomain, yDomain }) {
+  const data = drivetrains
+    .flatMap(({ gearsGroupedByChainring }) => gearsGroupedByChainring)
+    .filter(
+      (gear) =>
+        gear.gainRatio >= selectedDomain[0] &&
+        gear.gainRatio <= selectedDomain[1]
+    );
+  return (
+    <XYChart
+      height={height}
+      width={width}
+      xScale={{
+        type: "linear",
+        nice: true,
+        zero: false,
+        domain: selectedDomain,
+      }}
+      yScale={{ type: "point", domain: yDomain, padding: 0.2, align: 0 }}
+    >
+      <Axis orientation="bottom" />
+      <Axis orientation="left" />
+      <GlyphSeries dataKey="ratios" data={data} {...accessors} />
+    </XYChart>
   );
 }
 
@@ -59,18 +83,24 @@ function SelectionView({
       captureEvents={false}
     >
       <Axis orientation="bottom" />
-      <GlyphSeries
-        dataKey="ratios"
-        data={drivetrains.flatMap(
-          ({ gearsGroupedByChainring }) => gearsGroupedByChainring
-        )}
-        {...accessors}
-      />
+      <Plot drivetrains={drivetrains} />
       <Selector
         selectedDomain={selectedDomain}
         setSelectedDomain={setSelectedDomain}
       />
     </XYChart>
+  );
+}
+
+function Plot({ drivetrains }) {
+  return (
+    <GlyphSeries
+      dataKey="ratios"
+      data={drivetrains.flatMap(
+        ({ gearsGroupedByChainring }) => gearsGroupedByChainring
+      )}
+      {...accessors}
+    />
   );
 }
 
