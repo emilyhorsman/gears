@@ -39,20 +39,8 @@ function Drivetrain({ drivetrain }) {
             <div style={{ gridColumn: 1 }} className="front">
               {frontTeeth}t
             </div>
-            {gears.map((gear, index) => (
-              <div
-                key={gear.params.rearPos}
-                className={gear.inBestPath ? "best gear" : "gear"}
-              >
-                <div>{RatioFormatter.format(gear.gainRatio)}</div>
-                {index > 0 && (
-                  <div>
-                    {PercentageFormatter.format(
-                      gear.percentHarderThan(gears[index - 1])
-                    )}
-                  </div>
-                )}
-              </div>
+            {gears.map((gear) => (
+              <div>{RatioFormatter.format(gear.gainRatio)}</div>
             ))}
           </Fragment>
         );
