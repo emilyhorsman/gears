@@ -7,7 +7,12 @@ import GainRatio from "./GainRatio";
 import GainRatioChart from "./Chart";
 import GainRatioComparisonChart from "./GainRatioComparisonChart";
 import GearStepsChart from "./GearStepsChart";
-import { sum } from "d3-array";
+import { sum, max } from "d3-array";
+import { mean } from "d3-array";
+import { deviation } from "d3-array";
+import { scaleLinear, scaleLog } from "d3-scale";
+import { extent } from "d3-array";
+import { variance } from "d3-array";
 
 const drivetrains = [
   new Drivetrain({
@@ -21,14 +26,23 @@ const drivetrains = [
 
   new Drivetrain({
     id: 1,
-    fronts: [22, 32, 44],
+    fronts: [20, 30, 42],
     rears: [11, 13, 15, 18, 21, 24, 28, 32, 36],
     wheelRadius: Meters(0.34),
     crankLength: Meters(0.17),
     useBestPath: true,
   }),
 
-  /*new Drivetrain({
+  new Drivetrain({
+    id: 4,
+    fronts: [22, 32, 44],
+    rears: [11, 13, 15, 18, 21, 24, 28],
+    wheelRadius: Meters(0.34),
+    crankLength: Meters(0.17),
+    useBestPath: true,
+  }),
+
+  new Drivetrain({
     id: 2,
     fronts: [28],
     rears: [11, 13, 15, 17, 19, 21, 24, 28, 33, 39, 45, 51],
@@ -44,8 +58,47 @@ const drivetrains = [
     wheelRadius: Meters(0.34),
     crankLength: Meters(0.17),
     useBestPath: true,
-  }),*/
+  }),
 ];
+
+function sd(gears) {
+  return variance(gears, (gear, index) => {
+    if (index === 0 || gear.gainRatio > 6) {
+      return undefined;
+    }
+    return gear.percentHarderThan(gears[index - 1]);
+  });
+}
+
+function sumGears(gears) {
+  return sum(gears, (gear, index) => {
+    if (index === 0) {
+      return undefined;
+    }
+    return gear.percentHarderThan(gears[index - 1]);
+  });
+}
+
+function weightedSumGears(gears) {
+  return sum(gears, (gear, index) => {
+    if (index === 0 || gear.gainRatio > 3) {
+      return undefined;
+    }
+    return gear.percentHarderThan(gears[index - 1]);
+  });
+  /*const scale = scaleLinear()
+    .domain(extent(gears.map(({ gainRatio }) => gainRatio)))
+    .range([0.7, 1]);
+  return sum(gears, (gear, index) => {
+    if (index === 0) {
+      return undefined;
+    }
+    return (
+      Math.sqrt(gear.percentHarderThan(gears[index - 1])) *
+      scale(gear.gainRatio)
+    );
+  });*/
+}
 
 function App() {
   const [minRPM, setMinRPM] = useState(85);
@@ -63,14 +116,13 @@ function App() {
     useBestPath,
   });
 
-  drivetrains[1].findBestShifts();
-
   return (
     <>
       {drivetrains.map((drivetrain) => (
         <div key={drivetrain.params.id} style={{ display: "flex" }}>
-          <GearStepsChart gears={drivetrain.gears} />
-          <GearStepsChart gears={drivetrain.computeBestPath(sum)} />
+          <GearStepsChart gears={drivetrain.findBestShifts(sd)} />
+          <GearStepsChart gears={drivetrain.findBestShifts(sumGears)} />
+          <GearStepsChart gears={drivetrain.findBestShifts(weightedSumGears)} />
         </div>
       ))}
       <Table drivetrains={drivetrains} />

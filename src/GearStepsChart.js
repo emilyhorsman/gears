@@ -10,6 +10,7 @@ import { mean } from "d3-array";
 import { sum } from "d3-array";
 
 function GearStepsChart({ gears }) {
+  console.log(gears);
   const xScale = scaleBand()
     .domain(range(1, gears.length))
     .range([40, 400])
@@ -57,7 +58,7 @@ function GearStepsChart({ gears }) {
               {RatioFormatter.format(
                 sum(gears.map((gear) => gear.gainRatio))
               )}{" "}
-              mean={RatioFormatter.format(meanStep)}
+              mean={meanStep.toFixed(5)} n={gears.length}
             </td>
           </tr>
         </tfoot>
