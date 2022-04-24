@@ -90,7 +90,7 @@ export class Drivetrain {
           });
       });
 
-    this._computeBestPath().forEach((gear) => {
+    this.computeBestPath().forEach((gear) => {
       gear.inBestPath = true;
     });
   }
@@ -133,9 +133,9 @@ export class Drivetrain {
     return [this.easiestGear.gainRatio, this.hardestGear.gainRatio];
   }
 
-  _computeBestPath() {
+  computeBestPath(statFunc = stddev) {
     return this.byChainring.reduce((path, gears) => {
-      const bestShiftPos = computeBestShiftPos(path, gears);
+      const bestShiftPos = computeBestShiftPos(path, gears, statFunc);
       return joinPathAt(path, gears, bestShiftPos);
     });
   }

@@ -7,6 +7,7 @@ import GainRatio from "./GainRatio";
 import GainRatioChart from "./Chart";
 import GainRatioComparisonChart from "./GainRatioComparisonChart";
 import GearStepsChart from "./GearStepsChart";
+import { sum } from "d3-array";
 
 const drivetrains = [
   new Drivetrain({
@@ -27,7 +28,7 @@ const drivetrains = [
     useBestPath: true,
   }),
 
-  new Drivetrain({
+  /*new Drivetrain({
     id: 2,
     fronts: [28],
     rears: [11, 13, 15, 17, 19, 21, 24, 28, 33, 39, 45, 51],
@@ -43,7 +44,7 @@ const drivetrains = [
     wheelRadius: Meters(0.34),
     crankLength: Meters(0.17),
     useBestPath: true,
-  }),
+  }),*/
 ];
 
 function App() {
@@ -65,7 +66,10 @@ function App() {
   return (
     <>
       {drivetrains.map((drivetrain) => (
-        <GearStepsChart drivetrain={drivetrain} key={drivetrain.params.id} />
+        <div key={drivetrain.params.id} style={{ display: "flex" }}>
+          <GearStepsChart gears={drivetrain.gears} />
+          <GearStepsChart gears={drivetrain.computeBestPath(sum)} />
+        </div>
       ))}
       <Table drivetrains={drivetrains} />
     </>
