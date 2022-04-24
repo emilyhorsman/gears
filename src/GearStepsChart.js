@@ -120,11 +120,11 @@ export function GearStepsComparisonChart({ a, b }) {
     .paddingInner(0.4)
     .paddingOuter(1)
     .align(0.5);
-  const yScale = scaleLinear().domain([0.05, 0.2]).range([100, 0]);
+  const yScale = scaleLinear().domain([0.08, 0.25]).range([200, 0]);
 
   return (
     <div>
-      <svg width={400} height={150} style={{ display: "block", margin: 10 }}>
+      <svg width={400} height={230} style={{ display: "block", margin: 10 }}>
         <Group top={20}>
           <AxisLeft
             scale={yScale}
@@ -135,7 +135,7 @@ export function GearStepsComparisonChart({ a, b }) {
           />
           <AxisBottom
             scale={xScale}
-            top={100}
+            top={200}
             hideTicks={true}
             tickFormat={() => null}
           />

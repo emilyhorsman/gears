@@ -34,17 +34,8 @@ const drivetrains = [
   }),
 
   new Drivetrain({
-    id: 4,
-    fronts: [22, 32, 44],
-    rears: [11, 13, 15, 18, 21, 24, 28],
-    wheelRadius: Meters(0.34),
-    crankLength: Meters(0.17),
-    useBestPath: true,
-  }),
-
-  new Drivetrain({
     id: 2,
-    fronts: [28],
+    fronts: [24, 40],
     rears: [11, 13, 15, 17, 19, 21, 24, 28, 33, 39, 45, 51],
     wheelRadius: Meters(0.34),
     crankLength: Meters(0.17),
@@ -53,8 +44,9 @@ const drivetrains = [
 
   new Drivetrain({
     id: 3,
-    fronts: [28],
-    rears: [11, 13, 15, 17, 19, 22, 25, 28, 32, 36, 42, 50],
+    fronts: [28, 44],
+    //rears: [11, 13, 16, 19, 22, 25, 28, 32, 36, 41, 46, 51],
+    rears: [11, 14, 17, 20, 23, 26, 29, 33, 37, 42, 46, 51],
     wheelRadius: Meters(0.34),
     crankLength: Meters(0.17),
     useBestPath: true,
@@ -101,6 +93,10 @@ function App() {
         a={drivetrains[3].findBestShifts(sumGears)}
         b={drivetrains[2].findBestShifts(sumGears)}
       />
+      <div style={{ display: "flex" }}>
+        <GearStepsChart gears={drivetrains[3].gears} />
+        <GearStepsChart gears={drivetrains[2].gears} />
+      </div>
       {drivetrains.map((drivetrain) => (
         <div key={drivetrain.params.id} style={{ display: "flex" }}>
           <GearStepsChart gears={drivetrain.findBestShifts(sd)} />
