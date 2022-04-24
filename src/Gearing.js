@@ -1,5 +1,6 @@
 import { greatest } from "d3-array";
 import { min, max, extent, range } from "d3-array";
+import { RatioFormatter } from "./Utils";
 
 export function Meters(meters) {
   return {
@@ -151,16 +152,9 @@ export class Drivetrain {
         };
       }
 
-      if (index === 1) {
-        return {
-          outliers: [],
-          candidates: gears,
-        };
-      }
-
-      if (index === 2) {
+      if (index === this.byChainring.length - 1) {
         const hardestInPrevSet =
-          this.byChainring[1][this.byChainring[1].length - 1];
+          this.byChainring[index - 1][this.byChainring[index - 1].length - 1];
         const cutoff = gears.findIndex(
           (gear) => gear.percentHarderThan(hardestInPrevSet) > 0.08
         );
@@ -169,9 +163,21 @@ export class Drivetrain {
           candidates: gears.slice(0, cutoff),
         };
       }
+
+      return {
+        outliers: [],
+        candidates: gears,
+      };
     });
 
-    console.log(sets);
+    const possiblePaths = recursivelyConstructPaths(
+      sets.map(({ candidates }) => candidates)
+    );
+    console.log(
+      possiblePaths.map((path) =>
+        path.map(({ gainRatio }) => RatioFormatter.format(gainRatio))
+      )
+    );
   }
 
   computeBestPath(statFunc = stddev) {
@@ -180,6 +186,42 @@ export class Drivetrain {
       return joinPathAt(path, gears, bestShiftPos);
     });
   }
+}
+
+function recursivelyConstructPaths(sets, setIndex = 0, prevHardestGear = null) {
+  if (setIndex >= sets.length) {
+    return [];
+  }
+  const firstHarderGearIndex =
+    prevHardestGear === null
+      ? 0
+      : sets[setIndex].findIndex(
+          (gear) => gear.percentHarderThan(prevHardestGear) > 0.08
+        );
+
+  if (setIndex === sets.length - 1) {
+    if (firstHarderGearIndex === -1) {
+      return [];
+    }
+    return [sets[setIndex].slice(firstHarderGearIndex)];
+  }
+
+  const easiestGearInNextSet = sets[setIndex + 1][0];
+  const shiftPosMin = sets[setIndex].findIndex(
+    (gear) => easiestGearInNextSet.percentHarderThan(gear) <= 0.08
+  );
+
+  return range(shiftPosMin, sets[setIndex].length + 1).flatMap((shiftPos) => {
+    const base = sets[setIndex].slice(0, shiftPos);
+    const paths = recursivelyConstructPaths(
+      sets,
+      setIndex + 1,
+      base[base.length - 1]
+    );
+    return paths.map((path) => {
+      return base.concat(path);
+    });
+  });
 }
 
 function joinPathAt(easierGears, harderGears, pos) {
