@@ -6,6 +6,7 @@ import Table from "./Table";
 import GainRatio from "./GainRatio";
 import GainRatioChart from "./Chart";
 import GainRatioComparisonChart from "./GainRatioComparisonChart";
+import GearStepsChart from "./GearStepsChart";
 
 const drivetrains = [
   new Drivetrain({
@@ -63,6 +64,9 @@ function App() {
 
   return (
     <>
+      {drivetrains.map((drivetrain) => (
+        <GearStepsChart drivetrain={drivetrain} key={drivetrain.params.id} />
+      ))}
       <Table drivetrains={drivetrains} />
     </>
   );

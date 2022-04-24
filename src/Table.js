@@ -1,4 +1,5 @@
 import "./Table.css";
+import { RatioFormatter } from "./Utils";
 import { Fragment } from "react";
 
 function Table({ drivetrains }) {
@@ -35,12 +36,14 @@ function Drivetrain({ drivetrain }) {
       {drivetrain.byChainring.map((gears) => {
         const frontTeeth = gears[0].params.front;
         return (
-          <Fragment key={frontTeeth}>
+          <Fragment key={`${drivetrain.id}-${frontTeeth}`}>
             <div style={{ gridColumn: 1 }} className="front">
               {frontTeeth}t
             </div>
             {gears.map((gear) => (
-              <div>{RatioFormatter.format(gear.gainRatio)}</div>
+              <div key={gear.gainRatio}>
+                {RatioFormatter.format(gear.gainRatio)}
+              </div>
             ))}
           </Fragment>
         );
@@ -48,19 +51,5 @@ function Drivetrain({ drivetrain }) {
     </>
   );
 }
-
-const RatioFormatter = new Intl.NumberFormat(undefined, {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-const SpeedFormatter = new Intl.NumberFormat(undefined, {
-  style: "unit",
-  unit: "kilometer-per-hour",
-  maximumFractionDigits: 1,
-});
-const PercentageFormatter = new Intl.NumberFormat(undefined, {
-  style: "percent",
-  maximumFractionDigits: 1,
-});
 
 export default Table;
