@@ -26,37 +26,41 @@ function GearStepsChart({ gears }) {
   return (
     <div>
       <table style={{ fontSize: 11 }}>
-        <tr>
-          {gears.map((gear, index) => (
-            <td key={index}>{gear.params.front}</td>
-          ))}
-        </tr>
-        <tr>
-          {gears.map((gear, index) => (
-            <td key={index}>{gear.params.rear}</td>
-          ))}
-        </tr>
-        <tr>
-          {gears.map((gear, index) => (
-            <td key={index}>{RatioFormatter.format(gear.gainRatio)}</td>
-          ))}
-        </tr>
-        <tr>
-          {gears.map((gear, index) => (
-            <td key={index}>
-              {SpeedFormatter.format(gear.perHourSpeedAtRPM(90).km)}
+        <tbody>
+          <tr>
+            {gears.map((gear, index) => (
+              <td key={index}>{gear.params.front}</td>
+            ))}
+          </tr>
+          <tr>
+            {gears.map((gear, index) => (
+              <td key={index}>{gear.params.rear}</td>
+            ))}
+          </tr>
+          <tr>
+            {gears.map((gear, index) => (
+              <td key={index}>{RatioFormatter.format(gear.gainRatio)}</td>
+            ))}
+          </tr>
+          <tr>
+            {gears.map((gear, index) => (
+              <td key={index}>
+                {SpeedFormatter.format(gear.perHourSpeedAtRPM(90).km)}
+              </td>
+            ))}
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colSpan="10">
+              sum=
+              {RatioFormatter.format(
+                sum(gears.map((gear) => gear.gainRatio))
+              )}{" "}
+              mean={RatioFormatter.format(meanStep)}
             </td>
-          ))}
-        </tr>
-        <tr>
-          <td colspan="10">
-            sum=
-            {RatioFormatter.format(
-              sum(gears.map((gear) => gear.gainRatio))
-            )}{" "}
-            mean={RatioFormatter.format(meanStep)}
-          </td>
-        </tr>
+          </tr>
+        </tfoot>
       </table>
       <svg width={400} height={150} style={{ display: "block", margin: 10 }}>
         <Group top={20}>

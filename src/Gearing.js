@@ -1,4 +1,5 @@
-import { scaleLog } from "d3-scale";
+import { greatest } from "d3-array";
+import { min, max, extent, range } from "d3-array";
 
 export function Meters(meters) {
   return {
@@ -35,7 +36,7 @@ export class Gear {
   }
 
   percentHarderThan(other) {
-    return Math.abs(this.gainRatio - other.gainRatio) / other.gainRatio;
+    return (this.gainRatio - other.gainRatio) / other.gainRatio;
   }
 
   isHarderThan(other, threshold = 1.05) {
@@ -131,6 +132,46 @@ export class Drivetrain {
 
   get ratioExtent() {
     return [this.easiestGear.gainRatio, this.hardestGear.gainRatio];
+  }
+
+  findBestShifts() {
+    if (this.byChainring.length === 1) {
+      return this.byChainring[0];
+    }
+
+    const sets = this.byChainring.map((gears, index) => {
+      if (index === 0) {
+        const easiestInNextSet = this.byChainring[1][0];
+        const cutoff = gears.findIndex(
+          (gear) => easiestInNextSet.percentHarderThan(gear) < 0.08
+        );
+        return {
+          outliers: gears.slice(0, cutoff),
+          candidates: gears.slice(cutoff),
+        };
+      }
+
+      if (index === 1) {
+        return {
+          outliers: [],
+          candidates: gears,
+        };
+      }
+
+      if (index === 2) {
+        const hardestInPrevSet =
+          this.byChainring[1][this.byChainring[1].length - 1];
+        const cutoff = gears.findIndex(
+          (gear) => gear.percentHarderThan(hardestInPrevSet) > 0.08
+        );
+        return {
+          outliers: gears.slice(cutoff),
+          candidates: gears.slice(0, cutoff),
+        };
+      }
+    });
+
+    console.log(sets);
   }
 
   computeBestPath(statFunc = stddev) {

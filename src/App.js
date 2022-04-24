@@ -63,6 +63,8 @@ function App() {
     useBestPath,
   });
 
+  drivetrains[1].findBestShifts();
+
   return (
     <>
       {drivetrains.map((drivetrain) => (
