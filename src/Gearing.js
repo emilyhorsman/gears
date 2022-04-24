@@ -135,7 +135,7 @@ export class Drivetrain {
     return [this.easiestGear.gainRatio, this.hardestGear.gainRatio];
   }
 
-  findBestShifts() {
+  findBestShifts(evalFunc) {
     if (this.byChainring.length === 1) {
       return this.byChainring[0];
     }
@@ -173,11 +173,8 @@ export class Drivetrain {
     const possiblePaths = recursivelyConstructPaths(
       sets.map(({ candidates }) => candidates)
     );
-    console.log(
-      possiblePaths.map((path) =>
-        path.map(({ gainRatio }) => RatioFormatter.format(gainRatio))
-      )
-    );
+    const best = min(possiblePaths, evalFunc);
+    return sets[0].outliers.concat(best).concat(sets[2]?.outliers || []);
   }
 
   computeBestPath(statFunc = stddev) {
@@ -188,39 +185,28 @@ export class Drivetrain {
   }
 }
 
+function leftSubsets(arr) {
+  return range(arr.length + 1).map((i) => {
+    return arr.slice(0, i);
+  });
+}
+
 function recursivelyConstructPaths(sets, setIndex = 0, prevHardestGear = null) {
   if (setIndex >= sets.length) {
     return [];
   }
-  const firstHarderGearIndex =
-    prevHardestGear === null
-      ? 0
-      : sets[setIndex].findIndex(
-          (gear) => gear.percentHarderThan(prevHardestGear) > 0.08
-        );
-
+  const remainder = sets[setIndex].filter(
+    (gear) =>
+      prevHardestGear == null || gear.percentHarderThan(prevHardestGear) > 0.08
+  );
   if (setIndex === sets.length - 1) {
-    if (firstHarderGearIndex === -1) {
-      return [];
-    }
-    return [sets[setIndex].slice(firstHarderGearIndex)];
+    return prevHardestGear == null ? [] : [remainder];
   }
 
-  const easiestGearInNextSet = sets[setIndex + 1][0];
-  const shiftPosMin = sets[setIndex].findIndex(
-    (gear) => easiestGearInNextSet.percentHarderThan(gear) <= 0.08
-  );
-
-  return range(shiftPosMin, sets[setIndex].length + 1).flatMap((shiftPos) => {
-    const base = sets[setIndex].slice(0, shiftPos);
-    const paths = recursivelyConstructPaths(
-      sets,
-      setIndex + 1,
-      base[base.length - 1]
-    );
-    return paths.map((path) => {
-      return base.concat(path);
-    });
+  return leftSubsets(remainder).flatMap((base) => {
+    const hardest = base[base.length - 1] || prevHardestGear;
+    const paths = recursivelyConstructPaths(sets, setIndex + 1, hardest);
+    return paths.map((path) => base.concat(path));
   });
 }
 
