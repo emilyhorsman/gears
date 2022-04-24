@@ -10,7 +10,6 @@ import { mean } from "d3-array";
 import { sum } from "d3-array";
 
 function GearStepsChart({ gears }) {
-  console.log(gears);
   const xScale = scaleBand()
     .domain(range(1, gears.length))
     .range([40, 400])
@@ -104,6 +103,71 @@ function GearStepsChart({ gears }) {
                 <Label x={x + width} y={100}>
                   {text}
                 </Label>
+              </Fragment>
+            );
+          })}
+        </Group>
+      </svg>
+    </div>
+  );
+}
+
+export function GearStepsComparisonChart({ a, b }) {
+  const n = Math.min(a.length, b.length);
+  const xScale = scaleBand()
+    .domain(range(1, n))
+    .range([40, 400])
+    .paddingInner(0.4)
+    .paddingOuter(1)
+    .align(0.5);
+  const yScale = scaleLinear().domain([0.05, 0.2]).range([100, 0]);
+
+  return (
+    <div>
+      <svg width={400} height={150} style={{ display: "block", margin: 10 }}>
+        <Group top={20}>
+          <AxisLeft
+            scale={yScale}
+            left={40}
+            tickFormat={PercentageFormatter.format}
+            tickComponent={TickLabel}
+            numTicks={3}
+          />
+          <AxisBottom
+            scale={xScale}
+            top={100}
+            hideTicks={true}
+            tickFormat={() => null}
+          />
+          {range(1, n).map((i) => {
+            const x = xScale(i);
+            const aStep = a[i].percentHarderThan(a[i - 1]);
+            const bStep = b[i].percentHarderThan(b[i - 1]);
+            const aY = yScale(aStep);
+            const bY = yScale(bStep);
+            const width = xScale.bandwidth();
+            return (
+              <Fragment key={i}>
+                <Bar
+                  x={x}
+                  y={Math.min(aY, bY)}
+                  height={Math.abs(aY - bY)}
+                  width={width}
+                  fill={aY > bY ? "#26C6DA" : "#FFBEA9"}
+                />
+                <Line
+                  from={{ x, y: aY }}
+                  to={{ x: x + width, y: aY }}
+                  stroke="black"
+                  strokeWidth={2}
+                />
+                <Line
+                  from={{ x, y: bY }}
+                  to={{ x: x + width, y: bY }}
+                  stroke="#666"
+                  strokeWidth={2}
+                  strokeDasharray={4}
+                />
               </Fragment>
             );
           })}

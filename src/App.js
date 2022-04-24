@@ -6,7 +6,7 @@ import Table from "./Table";
 import GainRatio from "./GainRatio";
 import GainRatioChart from "./Chart";
 import GainRatioComparisonChart from "./GainRatioComparisonChart";
-import GearStepsChart from "./GearStepsChart";
+import GearStepsChart, { GearStepsComparisonChart } from "./GearStepsChart";
 import { sum, max } from "d3-array";
 import { mean } from "d3-array";
 import { deviation } from "d3-array";
@@ -79,27 +79,6 @@ function sumGears(gears) {
   });
 }
 
-function weightedSumGears(gears) {
-  return sum(gears, (gear, index) => {
-    if (index === 0 || gear.gainRatio > 3) {
-      return undefined;
-    }
-    return gear.percentHarderThan(gears[index - 1]);
-  });
-  /*const scale = scaleLinear()
-    .domain(extent(gears.map(({ gainRatio }) => gainRatio)))
-    .range([0.7, 1]);
-  return sum(gears, (gear, index) => {
-    if (index === 0) {
-      return undefined;
-    }
-    return (
-      Math.sqrt(gear.percentHarderThan(gears[index - 1])) *
-      scale(gear.gainRatio)
-    );
-  });*/
-}
-
 function App() {
   const [minRPM, setMinRPM] = useState(85);
   const [maxRPM, setMaxRPM] = useState(100);
@@ -118,11 +97,14 @@ function App() {
 
   return (
     <>
+      <GearStepsComparisonChart
+        a={drivetrains[3].findBestShifts(sumGears)}
+        b={drivetrains[2].findBestShifts(sumGears)}
+      />
       {drivetrains.map((drivetrain) => (
         <div key={drivetrain.params.id} style={{ display: "flex" }}>
           <GearStepsChart gears={drivetrain.findBestShifts(sd)} />
           <GearStepsChart gears={drivetrain.findBestShifts(sumGears)} />
-          <GearStepsChart gears={drivetrain.findBestShifts(weightedSumGears)} />
         </div>
       ))}
       <Table drivetrains={drivetrains} />
