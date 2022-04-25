@@ -15,7 +15,7 @@ function Table({ drivetrains }) {
       }}
     >
       {drivetrains.map((drivetrain) => (
-        <Drivetrain drivetrain={drivetrain} key={drivetrain.title} />
+        <Drivetrain drivetrain={drivetrain} key={drivetrain.params.id} />
       ))}
     </div>
   );

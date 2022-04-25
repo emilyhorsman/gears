@@ -13,6 +13,7 @@ import { deviation } from "d3-array";
 import { scaleLinear, scaleLog } from "d3-scale";
 import { extent } from "d3-array";
 import { variance } from "d3-array";
+import GainRatioGrid from "./GainRatioGrid";
 
 const drivetrains = [
   new Drivetrain({
@@ -35,7 +36,7 @@ const drivetrains = [
 
   new Drivetrain({
     id: 2,
-    fronts: [24, 40],
+    fronts: [28],
     rears: [11, 13, 15, 17, 19, 21, 24, 28, 33, 39, 45, 51],
     wheelRadius: Meters(0.34),
     crankLength: Meters(0.17),
@@ -44,7 +45,7 @@ const drivetrains = [
 
   new Drivetrain({
     id: 3,
-    fronts: [28, 44],
+    fronts: [28],
     //rears: [11, 13, 16, 19, 22, 25, 28, 32, 36, 41, 46, 51],
     rears: [11, 14, 17, 20, 23, 26, 29, 33, 37, 42, 46, 51],
     wheelRadius: Meters(0.34),
@@ -89,6 +90,7 @@ function App() {
 
   return (
     <>
+      <GainRatioGrid drivetrains={drivetrains} width={600} />
       <GearStepsComparisonChart
         a={drivetrains[3].findBestShifts(sumGears)}
         b={drivetrains[2].findBestShifts(sumGears)}
