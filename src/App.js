@@ -18,47 +18,16 @@ import DrivetrainForm from "./DrivetrainForm";
 import { parse, stringify } from "urlon";
 import { usePrevious } from "./Utils";
 
-const sampleDrivetrains = [
-  new Drivetrain({
-    id: 0,
-    label: "Marin Nicasio 2",
-    fronts: [30, 46],
-    rears: [11, 13, 15, 17, 19, 22, 25, 28, 32, 36],
-    beadSeatDiameter: Meters(0.584),
-    tireWidth: Meters(0.048),
-    crankLength: Meters(0.17),
-    useBestPath: true,
-  }),
-
-  /*
-  new Drivetrain({
-    id: 1,
-    fronts: [20, 30, 42],
-    rears: [11, 13, 15, 18, 21, 24, 28, 32, 36],
-    wheelRadius: Meters(0.34),
-    crankLength: Meters(0.17),
-    useBestPath: true,
-  }),
-
-  new Drivetrain({
-    id: 2,
-    fronts: [28],
-    rears: [11, 13, 15, 17, 19, 21, 24, 28, 33, 39, 45, 51],
-    wheelRadius: Meters(0.34),
-    crankLength: Meters(0.17),
-    useBestPath: true,
-  }),
-
-  new Drivetrain({
-    id: 3,
-    fronts: [28],
-    //rears: [11, 13, 16, 19, 22, 25, 28, 32, 36, 41, 46, 51],
-    rears: [11, 14, 17, 20, 23, 26, 29, 33, 37, 42, 46, 51],
-    wheelRadius: Meters(0.34),
-    crankLength: Meters(0.17),
-    useBestPath: true,
-  }),*/
-];
+const SAMPLE_DRIVETRAIN = new Drivetrain({
+  id: 0,
+  label: "Bike 0",
+  fronts: [30, 46],
+  rears: [11, 13, 15, 17, 19, 22, 25, 28, 32, 36],
+  beadSeatDiameter: Meters(0.584),
+  tireWidth: Meters(0.048),
+  crankLength: Meters(0.17),
+  useBestPath: true,
+});
 
 function sd(gears) {
   return variance(gears, (gear, index) => {
@@ -98,7 +67,7 @@ function deserialize(url) {
 
 function App() {
   const defaultDrivetrains = deserialize(window.location) ?? [
-    sampleDrivetrains[0],
+    SAMPLE_DRIVETRAIN,
   ];
   const [drivetrains, setDrivetrains] = useState(defaultDrivetrains);
   useQueryState(drivetrains, setDrivetrains);
