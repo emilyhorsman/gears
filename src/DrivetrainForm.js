@@ -5,7 +5,8 @@ import { useCallback, useEffect, useState, useRef } from "react";
 const DEFAULT_PARAMS = {
   fronts: [34, 50],
   rears: [11, 12, 13, 15, 17, 19, 22, 25, 28, 32],
-  wheelRadius: Meters(0.34),
+  beadSeatDiameter: Meters(0.584),
+  tireWidth: Meters(0.048),
   crankLength: Meters(0.17),
 };
 
@@ -14,15 +15,25 @@ function DrivetrainForm({ value, onChange }) {
     const newId = range(0, value.length + 1).find((id) => {
       return value.every((drivetrain) => drivetrain.params.id !== id);
     });
-    onChange(value.concat([new Drivetrain({ ...DEFAULT_PARAMS, id: newId })]));
+    onChange(
+      value.concat([
+        new Drivetrain({
+          ...DEFAULT_PARAMS,
+          id: newId,
+          label: `Bike ${newId}`,
+        }),
+      ])
+    );
   }, [value, onChange]);
 
   return (
     <div className="drivetrain-forms">
+      <div className="header">Label</div>
       <div className="header">Front Teeth</div>
       <div className="header">Rear Teeth</div>
       <div className="header">Crank Length (mm)</div>
-      <div className="header">Wheel Radius (mm)</div>
+      <div className="header">Bead Seat Diameter (mm)</div>
+      <div className="header">Tire Width (mm)</div>
       {value.map((drivetrain) => {
         return (
           <DrivetrainRowForm
@@ -71,12 +82,32 @@ function DrivetrainRowForm({ value, onChange, canRemove }) {
     },
     [onChange]
   );
+  const [label, setLabel] = useState(value.params.label);
   const [crank, setCrank] = useState(value.params.crankLength.mm);
-  const [wheelRadius, setWheelRadius] = useState(value.params.wheelRadius.mm);
+  const [bsd, setBsd] = useState(value.params.beadSeatDiameter.mm);
+  const [tire, setTire] = useState(value.params.tireWidth.mm);
 
   return (
     <>
       <label className="first">
+        Label
+        <input
+          type="text"
+          className="input-label"
+          value={label}
+          onChange={(event) => setLabel(event.target.value)}
+          onBlur={() => {
+            onChange(
+              new Drivetrain({
+                ...value.params,
+                label,
+              })
+            );
+          }}
+        />
+      </label>
+
+      <label>
         Front Teeth
         <ArrayInput
           value={value.params.fronts}
@@ -116,22 +147,44 @@ function DrivetrainRowForm({ value, onChange, canRemove }) {
         />
       </label>
       <label>
-        Wheel Radius (mm)
+        Bead Seat Diameter (mm)
         <input
           type="number"
           className="input-small"
           min={0}
-          value={wheelRadius}
-          onChange={(event) => setWheelRadius(event.target.value)}
+          value={bsd}
+          onChange={(event) => setBsd(event.target.value)}
           onBlur={() => {
-            if (Number.isNaN(wheelRadius)) {
+            if (Number.isNaN(bsd)) {
               return;
             }
 
             onChange(
               new Drivetrain({
                 ...value.params,
-                wheelRadius: Meters(wheelRadius / 1000),
+                beadSeatDiameter: Meters(bsd / 1000),
+              })
+            );
+          }}
+        />
+      </label>
+      <label>
+        Tire Width (mm)
+        <input
+          type="number"
+          className="input-small"
+          min={0}
+          value={tire}
+          onChange={(event) => setTire(event.target.value)}
+          onBlur={() => {
+            if (Number.isNaN(tire)) {
+              return;
+            }
+
+            onChange(
+              new Drivetrain({
+                ...value.params,
+                tireWidth: Meters(tire / 1000),
               })
             );
           }}

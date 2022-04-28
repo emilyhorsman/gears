@@ -68,9 +68,10 @@ export class Gear {
 
 export class Drivetrain {
   constructor(params) {
-    const { fronts, rears, wheelRadius, crankLength } = params;
+    const { fronts, rears, beadSeatDiameter, tireWidth, crankLength } = params;
     this.params = params;
     this.rearSize = rears.length;
+    const wheelRadius = Meters(beadSeatDiameter.m / 2 + tireWidth.m);
     this.byChainring = fronts
       .slice()
       .sort()
@@ -127,10 +128,9 @@ export class Drivetrain {
   }
 
   get title() {
-    const { fronts, rears } = this.params;
-    return `${fronts.length}x${rears.length} ${fronts.join("/")}t ${rears[0]}-${
-      rears[rears.length - 1]
-    }`;
+    const { label, fronts, rears, crankLength, beadSeatDiameter, tireWidth } =
+      this.params;
+    return `${label}: ${fronts.length}x${rears.length}; Crank = ${crankLength.mm}; BSD = ${beadSeatDiameter.mm}; Tire Width = ${tireWidth.mm}`;
   }
 
   get ratioExtent() {

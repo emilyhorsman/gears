@@ -8,14 +8,22 @@
     local("Droid Sans Mono"), local("Courier New"), local(monospace);
 }
 
+@font-face {
+  font-family: system;
+  font-style: normal;
+  font-weight: 400;
+  src: local(-apple-system), local(BlinkMacSystemFont), local("Segoe UI"),
+    local(Roboto), local(Oxygen-Sans), local(Ubuntu), local(Cantarell),
+    local("Helvetica Neue"), local(sans-serif);
+}
+
 * {
   box-sizing: border-box;
 }
 
 body {
   padding: 10px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  font-family: "system";
   font-size: 16px;
 }
 
@@ -32,7 +40,7 @@ label {
 
 .drivetrain-forms {
   display: grid;
-  grid-template-columns: repeat(5, min-content);
+  grid-template-columns: repeat(7, min-content);
   gap: 1rem;
 }
 
@@ -49,12 +57,17 @@ label {
   grid-column: 1 / 5;
 }
 
+.input-label {
+  min-width: 8em;
+  font-family: "system";
+}
+
 .input-small {
   min-width: 4em;
 }
 
 .input-fronts {
-  min-width: 8em;
+  min-width: 4em;
 }
 
 .input-rears {

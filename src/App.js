@@ -19,13 +19,16 @@ import DrivetrainForm from "./DrivetrainForm";
 const sampleDrivetrains = [
   new Drivetrain({
     id: 0,
+    label: "Marin Nicasio 2",
     fronts: [30, 46],
     rears: [11, 13, 15, 17, 19, 22, 25, 28, 32, 36],
-    wheelRadius: Meters(0.34),
+    beadSeatDiameter: Meters(0.584),
+    tireWidth: Meters(0.048),
     crankLength: Meters(0.17),
     useBestPath: true,
   }),
 
+  /*
   new Drivetrain({
     id: 1,
     fronts: [20, 30, 42],
@@ -52,7 +55,7 @@ const sampleDrivetrains = [
     wheelRadius: Meters(0.34),
     crankLength: Meters(0.17),
     useBestPath: true,
-  }),
+  }),*/
 ];
 
 function sd(gears) {
