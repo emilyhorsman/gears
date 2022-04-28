@@ -16,7 +16,7 @@ import { variance } from "d3-array";
 import GainRatioGrid from "./GainRatioGrid";
 import DrivetrainForm from "./DrivetrainForm";
 
-const drivetrains = [
+const sampleDrivetrains = [
   new Drivetrain({
     id: 0,
     fronts: [30, 46],
@@ -74,73 +74,12 @@ function sumGears(gears) {
 }
 
 function App() {
-  const [minRPM, setMinRPM] = useState(85);
-  const [maxRPM, setMaxRPM] = useState(100);
-  const [chainrings, setChainrings] = useState([30, 46]);
-  const [cassette, setCassette] = useState([
-    11, 13, 15, 17, 19, 22, 25, 28, 32, 36,
-  ]);
-  const [useBestPath, setUseBestPath] = useState(true);
-  const [drivetrain, setDrivetrain] = useState(drivetrains[0]);
+  const [drivetrains, setDrivetrains] = useState([sampleDrivetrains[0]]);
 
   return (
     <>
-      <div className="drivetrain-forms">
-        <DrivetrainForm value={drivetrain} onChange={setDrivetrain} />
-      </div>
-      <Table drivetrains={[drivetrain]} />
-    </>
-  );
-
-  return (
-    <>
-      <div>
-        RPM:
-        <input
-          type="number"
-          value={minRPM}
-          onChange={(event) => {
-            setMinRPM(event.target.value);
-          }}
-          min={50}
-          max={maxRPM}
-          step={1}
-        />
-        <input
-          type="number"
-          value={maxRPM}
-          onChange={(event) => {
-            setMaxRPM(event.target.value);
-          }}
-          min={minRPM + 5}
-          max={120}
-          step={1}
-        />
-      </div>
-
-      <div>
-        <label>
-          Exclude redundant gears?
-          <input
-            type="checkbox"
-            checked={useBestPath}
-            onChange={(event) => setUseBestPath(event.target.checked)}
-          />
-        </label>
-      </div>
-
-      <Legend drivetrains={drivetrains} />
-
-      <Chart
-        drivetrains={drivetrains}
-        drivetrain={drivetrain}
-        bailOutRPM={50}
-        minRPM={minRPM}
-        maxRPM={maxRPM}
-        margin={{ top: 10, right: 10, bottom: 50, left: 20 }}
-        width={1000}
-        height={500}
-      />
+      <DrivetrainForm value={drivetrains} onChange={setDrivetrains} />
+      <Table drivetrains={drivetrains} />
     </>
   );
 }

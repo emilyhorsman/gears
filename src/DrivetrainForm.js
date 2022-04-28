@@ -2,7 +2,63 @@ import { Drivetrain, Meters } from "./Gearing";
 import { range } from "d3-array";
 import { useCallback, useEffect, useState, useRef } from "react";
 
+const DEFAULT_PARAMS = {
+  fronts: [34, 50],
+  rears: [11, 12, 13, 15, 17, 19, 22, 25, 28, 32],
+  wheelRadius: Meters(0.34),
+  crankLength: Meters(0.17),
+};
+
 function DrivetrainForm({ value, onChange }) {
+  const handleAddDrivetrain = useCallback(() => {
+    const newId = range(0, value.length + 1).find((id) => {
+      return value.every((drivetrain) => drivetrain.params.id !== id);
+    });
+    onChange(value.concat([new Drivetrain({ ...DEFAULT_PARAMS, id: newId })]));
+  }, [value, onChange]);
+
+  return (
+    <div className="drivetrain-forms">
+      <div className="header">Front Teeth</div>
+      <div className="header">Rear Teeth</div>
+      <div className="header">Crank Length (mm)</div>
+      <div className="header">Wheel Radius (mm)</div>
+      {value.map((drivetrain) => {
+        return (
+          <DrivetrainRowForm
+            key={drivetrain.params.id}
+            value={drivetrain}
+            canRemove={value.length > 1}
+            onChange={(newDrivetrain) => {
+              if (newDrivetrain === null) {
+                onChange(
+                  value.filter((d) => d.params.id !== drivetrain.params.id)
+                );
+                return;
+              }
+
+              onChange(
+                value.map((d) => {
+                  if (d.params.id !== drivetrain.params.id) {
+                    return d;
+                  }
+                  return newDrivetrain;
+                })
+              );
+            }}
+          />
+        );
+      })}
+      <div className="footer">
+        <button type="button" onClick={handleAddDrivetrain}>
+          Compare Another Drivetrain
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function DrivetrainRowForm({ value, onChange, canRemove }) {
   const handleFrontsChange = useCallback(
     (fronts) => {
       return onChange(new Drivetrain({ ...value.params, fronts }));
@@ -20,7 +76,7 @@ function DrivetrainForm({ value, onChange }) {
 
   return (
     <>
-      <label>
+      <label className="first">
         Front Teeth
         <ArrayInput
           value={value.params.fronts}
@@ -81,6 +137,13 @@ function DrivetrainForm({ value, onChange }) {
           }}
         />
       </label>
+      <button
+        type="button"
+        onClick={() => onChange(null)}
+        disabled={!canRemove}
+      >
+        Remove
+      </button>
     </>
   );
 }

@@ -26,10 +26,39 @@ input {
   font-family: "system-mono";
 }
 
+label {
+  font-size: 0;
+}
+
 .drivetrain-forms {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, min-content);
   gap: 1rem;
+}
+
+.first {
+  grid-column: 1;
+}
+
+.header {
+  white-space: nowrap;
+  grid-row: 1;
+}
+
+.footer {
+  grid-column: 1 / 5;
+}
+
+.input-small {
+  min-width: 4em;
+}
+
+.input-fronts {
+  min-width: 8em;
+}
+
+.input-rears {
+  min-width: 28em;
 }
 
 .legend {
