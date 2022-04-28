@@ -75,7 +75,17 @@ function App() {
   return (
     <>
       <DrivetrainForm value={drivetrains} onChange={setDrivetrains} />
-      <Table drivetrains={drivetrains} />
+      <div className="flex-row">
+        <Table drivetrains={drivetrains} />
+        <div>
+          {drivetrains.map((drivetrain) => (
+            <GearStepsChart
+              key={drivetrain.params.id}
+              gears={drivetrain.findBestShifts(sumGears)}
+            />
+          ))}
+        </div>
+      </div>
     </>
   );
 }

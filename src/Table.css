@@ -2,6 +2,7 @@
   display: grid;
   grid-gap: 10px;
   font-size: 16px;
+  grid-auto-rows: min-content;
 }
 
 .title {
