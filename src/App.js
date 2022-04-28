@@ -14,6 +14,7 @@ import { scaleLinear, scaleLog } from "d3-scale";
 import { extent } from "d3-array";
 import { variance } from "d3-array";
 import GainRatioGrid from "./GainRatioGrid";
+import DrivetrainForm from "./DrivetrainForm";
 
 const drivetrains = [
   new Drivetrain({
@@ -80,32 +81,12 @@ function App() {
     11, 13, 15, 17, 19, 22, 25, 28, 32, 36,
   ]);
   const [useBestPath, setUseBestPath] = useState(true);
-  const drivetrain = new Drivetrain({
-    fronts: chainrings,
-    rears: cassette,
-    wheelRadius: Meters(0.34),
-    crankLength: Meters(0.17),
-    useBestPath,
-  });
+  const [drivetrain, setDrivetrain] = useState(drivetrains[0]);
 
   return (
     <>
-      <GainRatioGrid drivetrains={drivetrains} width={600} />
-      <GearStepsComparisonChart
-        a={drivetrains[3].findBestShifts(sumGears)}
-        b={drivetrains[2].findBestShifts(sumGears)}
-      />
-      <div style={{ display: "flex" }}>
-        <GearStepsChart gears={drivetrains[3].gears} />
-        <GearStepsChart gears={drivetrains[2].gears} />
-      </div>
-      {drivetrains.map((drivetrain) => (
-        <div key={drivetrain.params.id} style={{ display: "flex" }}>
-          <GearStepsChart gears={drivetrain.findBestShifts(sd)} />
-          <GearStepsChart gears={drivetrain.findBestShifts(sumGears)} />
-        </div>
-      ))}
-      <Table drivetrains={drivetrains} />
+      <DrivetrainForm value={drivetrain} onChange={setDrivetrain} />
+      <Table drivetrains={[drivetrain]} />
     </>
   );
 
@@ -134,10 +115,7 @@ function App() {
           step={1}
         />
       </div>
-      <div>
-        <ArrayInput value={chainrings} onChange={setChainrings} />
-        <ArrayInput value={cassette} onChange={setCassette} />
-      </div>
+
       <div>
         <label>
           Exclude redundant gears?
@@ -163,59 +141,6 @@ function App() {
       />
     </>
   );
-}
-
-function ArrayInput({ value, onChange }) {
-  const [text, setText] = useState(value.join(", "));
-  const prevValue = useRef();
-  useEffect(() => {
-    prevValue.current = value;
-  });
-  useEffect(() => {
-    // Make this component fully controlled but only update the text if the semantic
-    // value received from above is different.
-    if (!arrayEq(prevValue, value)) {
-      setText(value.join(", "));
-      prevValue.current = value;
-    }
-  }, [value]);
-
-  return (
-    <input
-      type="text"
-      value={text}
-      onChange={(event) => {
-        const newText = event.target.value;
-        const candidate = convert(newText);
-        setText(newText);
-        if (candidate != null) {
-          onChange(candidate);
-        }
-      }}
-    />
-  );
-}
-
-function arrayEq(a, b) {
-  if (a.length !== b.length) {
-    return false;
-  }
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) {
-      return false;
-    }
-  }
-  return true;
-}
-
-function convert(text) {
-  const arr = text.split(",").map((x) => Number(x));
-  for (let i = 0; i < arr.length; i++) {
-    if (Number.isNaN(arr[i]) || (i > 0 && arr[i] <= arr[i - 1])) {
-      return null;
-    }
-  }
-  return arr;
 }
 
 export default App;

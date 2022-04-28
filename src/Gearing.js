@@ -5,6 +5,7 @@ import { RatioFormatter } from "./Utils";
 
 export function Meters(meters) {
   return {
+    mm: meters * 1000,
     m: meters,
     km: meters / 1000,
   };
