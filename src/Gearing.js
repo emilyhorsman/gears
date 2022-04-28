@@ -137,6 +137,39 @@ export class Drivetrain {
     return [this.easiestGear.gainRatio, this.hardestGear.gainRatio];
   }
 
+  get urlSerialize() {
+    const {
+      id,
+      label,
+      fronts,
+      rears,
+      crankLength,
+      beadSeatDiameter,
+      tireWidth,
+    } = this.params;
+    return {
+      id,
+      l: label,
+      f: fronts,
+      r: rears,
+      c: crankLength.m,
+      b: beadSeatDiameter.m,
+      t: tireWidth.m,
+    };
+  }
+
+  static urlDeserialize(obj) {
+    return new Drivetrain({
+      id: obj.id,
+      label: obj.l,
+      fronts: obj.f,
+      rears: obj.r,
+      crankLength: Meters(obj.c),
+      beadSeatDiameter: Meters(obj.b),
+      tireWidth: Meters(obj.t),
+    });
+  }
+
   findBestShifts(evalFunc) {
     if (this.byChainring.length === 1) {
       return this.byChainring[0];

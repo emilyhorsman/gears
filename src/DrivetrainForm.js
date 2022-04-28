@@ -94,6 +94,7 @@ function DrivetrainRowForm({ value, onChange, canRemove }) {
         <input
           type="text"
           className="input-label"
+          maxLength={20}
           value={label}
           onChange={(event) => setLabel(event.target.value)}
           onBlur={() => {

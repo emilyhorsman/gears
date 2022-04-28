@@ -15,6 +15,7 @@ import { extent } from "d3-array";
 import { variance } from "d3-array";
 import GainRatioGrid from "./GainRatioGrid";
 import DrivetrainForm from "./DrivetrainForm";
+import { parse, stringify } from "urlon";
 
 const sampleDrivetrains = [
   new Drivetrain({
@@ -76,8 +77,39 @@ function sumGears(gears) {
   });
 }
 
+function serialize(drivetrains) {
+  const query = stringify(
+    drivetrains.map((drivetrain) => drivetrain.urlSerialize)
+  );
+  const url = new URL(window.location);
+  url.search = query;
+  return url;
+}
+
+function deserialize(url) {
+  const drivetrains = parse(url.search.slice(1));
+  return drivetrains.map((x) => Drivetrain.urlDeserialize(x));
+}
+
 function App() {
-  const [drivetrains, setDrivetrains] = useState([sampleDrivetrains[0]]);
+  const defaultDrivetrains = deserialize(window.location);
+  const [drivetrains, setDrivetrains] = useState(
+    defaultDrivetrains.length === 0
+      ? [sampleDrivetrains[0]]
+      : defaultDrivetrains
+  );
+  useEffect(() => {
+    window.history.pushState({}, "", serialize(drivetrains));
+  }, [drivetrains]);
+  useEffect(() => {
+    function handle(event) {
+      setDrivetrains(deserialize(event.target.location));
+    }
+    window.addEventListener("popstate", handle);
+    return () => {
+      window.removeEventListener("popstate", handle);
+    };
+  }, []);
 
   return (
     <>
