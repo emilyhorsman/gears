@@ -1,3 +1,13 @@
+@font-face {
+  font-family: system-mono;
+  font-style: normal;
+  font-weight: 400;
+  src: local(ui-monospace), local(Menlo), local(Monaco), local("Cascadia Mono"),
+    local("Segoe UI Mono"), local("Roboto Mono"), local("Oxygen Mono"),
+    local("Ubuntu Monospace"), local("Source Code Pro"), local("Fira Mono"),
+    local("Droid Sans Mono"), local("Courier New"), local(monospace);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -7,6 +17,19 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
   font-size: 16px;
+}
+
+input {
+  display: block;
+  width: 100%;
+  font-size: 1rem;
+  font-family: "system-mono";
+}
+
+.drivetrain-forms {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
 }
 
 .legend {

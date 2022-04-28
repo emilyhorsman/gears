@@ -19,13 +19,29 @@ function DrivetrainForm({ value, onChange }) {
   const [wheelRadius, setWheelRadius] = useState(value.params.wheelRadius.mm);
 
   return (
-    <div>
-      <ArrayInput value={value.params.fronts} onChange={handleFrontsChange} />
-      <ArrayInput value={value.params.rears} onChange={handleRearsChange} />
+    <>
+      <label>
+        Front Teeth
+        <ArrayInput
+          value={value.params.fronts}
+          onChange={handleFrontsChange}
+          className="input-fronts"
+        />
+      </label>
+
+      <label>
+        Rear Teeth
+        <ArrayInput
+          value={value.params.rears}
+          onChange={handleRearsChange}
+          className="input-rears"
+        />
+      </label>
       <label>
         Crank Length (mm)
         <input
           type="number"
+          className="input-small"
           min={0}
           value={crank}
           onChange={(event) => setCrank(event.target.value)}
@@ -47,6 +63,7 @@ function DrivetrainForm({ value, onChange }) {
         Wheel Radius (mm)
         <input
           type="number"
+          className="input-small"
           min={0}
           value={wheelRadius}
           onChange={(event) => setWheelRadius(event.target.value)}
@@ -64,11 +81,11 @@ function DrivetrainForm({ value, onChange }) {
           }}
         />
       </label>
-    </div>
+    </>
   );
 }
 
-function ArrayInput({ value, onChange }) {
+function ArrayInput({ value, onChange, ...props }) {
   const [text, setText] = useState(value.join(", "));
   const prevValue = useRef();
   useEffect(() => {
@@ -94,6 +111,7 @@ function ArrayInput({ value, onChange }) {
           onChange(candidate);
         }
       }}
+      {...props}
     />
   );
 }

@@ -85,7 +85,9 @@ function App() {
 
   return (
     <>
-      <DrivetrainForm value={drivetrain} onChange={setDrivetrain} />
+      <div className="drivetrain-forms">
+        <DrivetrainForm value={drivetrain} onChange={setDrivetrain} />
+      </div>
       <Table drivetrains={[drivetrain]} />
     </>
   );
