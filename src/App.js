@@ -16,6 +16,7 @@ import { variance } from "d3-array";
 import GainRatioGrid from "./GainRatioGrid";
 import DrivetrainForm from "./DrivetrainForm";
 import { parse, stringify } from "urlon";
+import { usePrevious } from "./Utils";
 
 const sampleDrivetrains = [
   new Drivetrain({
@@ -87,29 +88,20 @@ function serialize(drivetrains) {
 }
 
 function deserialize(url) {
-  const drivetrains = parse(url.search.slice(1));
-  return drivetrains.map((x) => Drivetrain.urlDeserialize(x));
+  try {
+    const drivetrains = parse(url.search.slice(1));
+    return drivetrains.map((x) => Drivetrain.urlDeserialize(x));
+  } catch {
+    return null;
+  }
 }
 
 function App() {
-  const defaultDrivetrains = deserialize(window.location);
-  const [drivetrains, setDrivetrains] = useState(
-    defaultDrivetrains.length === 0
-      ? [sampleDrivetrains[0]]
-      : defaultDrivetrains
-  );
-  useEffect(() => {
-    window.history.pushState({}, "", serialize(drivetrains));
-  }, [drivetrains]);
-  useEffect(() => {
-    function handle(event) {
-      setDrivetrains(deserialize(event.target.location));
-    }
-    window.addEventListener("popstate", handle);
-    return () => {
-      window.removeEventListener("popstate", handle);
-    };
-  }, []);
+  const defaultDrivetrains = deserialize(window.location) ?? [
+    sampleDrivetrains[0],
+  ];
+  const [drivetrains, setDrivetrains] = useState(defaultDrivetrains);
+  useQueryState(drivetrains, setDrivetrains);
 
   return (
     <>
@@ -117,6 +109,41 @@ function App() {
       <Table drivetrains={drivetrains} />
     </>
   );
+}
+
+function useQueryState(value, onChange) {
+  const pageRef = useRef(0);
+  const prevValue = usePrevious(value);
+
+  useEffect(() => {
+    const serialized = serialize(value);
+
+    if (prevValue == null) {
+      window.history.replaceState({ page: pageRef.current }, "", serialized);
+      return;
+    }
+
+    if (prevValue === value) {
+      return;
+    }
+
+    const page = window.history.state?.page ?? 0;
+    if (page < pageRef.current) {
+      return;
+    }
+
+    window.history.pushState({ page: ++pageRef.current }, "", serialized);
+  }, [prevValue, value]);
+
+  useEffect(() => {
+    function handle(event) {
+      onChange(deserialize(event.target.location));
+    }
+    window.addEventListener("popstate", handle);
+    return () => {
+      window.removeEventListener("popstate", handle);
+    };
+  }, []);
 }
 
 export default App;
