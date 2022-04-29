@@ -5,6 +5,11 @@ export const RatioFormatter = new Intl.NumberFormat(undefined, {
   maximumFractionDigits: 2,
 });
 
+export const GearInchesFormatter = new Intl.NumberFormat(undefined, {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
+
 export const SpeedFormatter = new Intl.NumberFormat(undefined, {
   style: "unit",
   unit: "kilometer-per-hour",

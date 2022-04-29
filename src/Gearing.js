@@ -8,6 +8,7 @@ export function Meters(meters) {
     mm: meters * 1000,
     m: meters,
     km: meters / 1000,
+    inches: meters * 39.3701,
   };
 }
 
@@ -24,6 +25,8 @@ export class Gear {
     this.travelPerRevolution = Meters(
       crankOrbitCircumference.m * this.gainRatio
     );
+    this.development = this.travelPerRevolution;
+    this.gearInches = Meters(this.development.m / Math.PI).inches;
   }
 
   perHourSpeedAtRPM(rpm) {

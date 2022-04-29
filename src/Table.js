@@ -1,5 +1,5 @@
 import "./Table.css";
-import { RatioFormatter } from "./Utils";
+import { RatioFormatter, GearInchesFormatter } from "./Utils";
 import { Fragment } from "react";
 
 function Table({ drivetrains }) {
@@ -11,7 +11,7 @@ function Table({ drivetrains }) {
     <div
       className="table"
       style={{
-        gridTemplateColumns: `repeat(${maxRearGears + 1}, min-content)`,
+        gridTemplateColumns: `repeat(${maxRearGears + 1}, max-content)`,
       }}
     >
       {drivetrains.map((drivetrain) => (
@@ -43,6 +43,10 @@ function Drivetrain({ drivetrain }) {
             {gears.map((gear) => (
               <div key={gear.gainRatio}>
                 {RatioFormatter.format(gear.gainRatio)}
+                <br />
+                {GearInchesFormatter.format(gear.gearInches)}"
+                <br />
+                {GearInchesFormatter.format(gear.development.m)} m
               </div>
             ))}
           </Fragment>
