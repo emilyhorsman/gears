@@ -99,3 +99,42 @@ label {
   border-radius: 20px;
   margin-right: 5px;
 }
+
+table {
+  margin-top: 10px;
+  border-collapse: collapse;
+  line-height: 1;
+}
+
+tbody th,
+thead th:first-child {
+  border-right: 1px solid #78909c;
+}
+
+thead th {
+  border-bottom: 1px solid #78909c;
+}
+
+th {
+  text-align: start;
+  font-weight: 400;
+}
+
+thead th {
+  padding-bottom: 5px;
+}
+
+tbody th {
+  padding-right: 5px;
+}
+
+td,
+tbody th {
+  padding-top: 5px;
+}
+
+tbody td,
+thead th {
+  padding-left: 5px;
+  padding-right: 5px;
+}
