@@ -65,6 +65,11 @@ function DrivetrainForm({ value, onChange }) {
           Compare Another Drivetrain
         </button>
       </div>
+      <datalist id="bead-seat-diameter-datalist">
+        <option value={622} label='700c / 29"' />
+        <option value={584} label='650b / 27.5"' />
+        <option value={559} label='26"' />
+      </datalist>
     </div>
   );
 }
@@ -151,6 +156,7 @@ function DrivetrainRowForm({ value, onChange, canRemove }) {
         Bead Seat Diameter (mm)
         <input
           type="number"
+          list="bead-seat-diameter-datalist"
           className="input-small"
           min={0}
           value={bsd}
