@@ -1,0 +1,9 @@
+.cells th {
+  font-weight: 400;
+  text-align: inherit;
+  vertical-align: top;
+}
+
+.cells th:first-child {
+  text-align: right;
+}
