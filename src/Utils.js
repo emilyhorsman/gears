@@ -11,6 +11,8 @@ export const GearInchesFormatter = new Intl.NumberFormat(undefined, {
 });
 
 export const SpeedFormatter = new Intl.NumberFormat(undefined, {
+  style: "unit",
+  unit: "kilometer-per-hour",
   maximumFractionDigits: 1,
 });
 

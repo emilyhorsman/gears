@@ -1,13 +1,80 @@
-import "./DrivetrainForm.css";
 import { Drivetrain, Meters } from "./Gearing";
 import { range } from "d3-array";
-import { useCallback, useEffect, useState, useRef, Fragment } from "react";
-import Table from "./Table";
-import { RatioFormatter, SpeedFormatter } from "./Utils";
-import { scaleSequential } from "d3-scale";
-import { interpolateLab } from "d3-interpolate";
+import { useCallback, useEffect, useState, useRef } from "react";
+
+const DEFAULT_PARAMS = {
+  fronts: [34, 50],
+  rears: [11, 12, 13, 15, 17, 19, 22, 25, 28, 32],
+  beadSeatDiameter: Meters(0.584),
+  tireWidth: Meters(0.048),
+  crankLength: Meters(0.17),
+};
 
 function DrivetrainForm({ value, onChange }) {
+  const handleAddDrivetrain = useCallback(() => {
+    const newId = range(0, value.length + 1).find((id) => {
+      return value.every((drivetrain) => drivetrain.params.id !== id);
+    });
+    onChange(
+      value.concat([
+        new Drivetrain({
+          ...DEFAULT_PARAMS,
+          id: newId,
+          label: `Bike ${newId}`,
+        }),
+      ])
+    );
+  }, [value, onChange]);
+
+  return (
+    <div className="drivetrain-forms">
+      <div className="header">Label</div>
+      <div className="header">Front Teeth</div>
+      <div className="header">Rear Teeth</div>
+      <div className="header">Crank Length (mm)</div>
+      <div className="header">Bead Seat Diameter (mm)</div>
+      <div className="header">Tire Width (mm)</div>
+      {value.map((drivetrain) => {
+        return (
+          <DrivetrainRowForm
+            key={drivetrain.params.id}
+            value={drivetrain}
+            canRemove={value.length > 1}
+            onChange={(newDrivetrain) => {
+              if (newDrivetrain === null) {
+                onChange(
+                  value.filter((d) => d.params.id !== drivetrain.params.id)
+                );
+                return;
+              }
+
+              onChange(
+                value.map((d) => {
+                  if (d.params.id !== drivetrain.params.id) {
+                    return d;
+                  }
+                  return newDrivetrain;
+                })
+              );
+            }}
+          />
+        );
+      })}
+      <div className="footer">
+        <button type="button" onClick={handleAddDrivetrain}>
+          Compare Another Drivetrain
+        </button>
+      </div>
+      <datalist id="bead-seat-diameter-datalist">
+        <option value={622} label='700c / 29"' />
+        <option value={584} label='650b / 27.5"' />
+        <option value={559} label='26"' />
+      </datalist>
+    </div>
+  );
+}
+
+function DrivetrainRowForm({ value, onChange, canRemove }) {
   const handleFrontsChange = useCallback(
     (fronts) => {
       return onChange(new Drivetrain({ ...value.params, fronts }));
@@ -27,52 +94,117 @@ function DrivetrainForm({ value, onChange }) {
 
   return (
     <>
-      <Cells drivetrain={value} />
-    </>
-  );
-}
+      <label className="first">
+        Label
+        <input
+          type="text"
+          className="input-label"
+          maxLength={20}
+          value={label}
+          onChange={(event) => setLabel(event.target.value)}
+          onBlur={() => {
+            onChange(
+              new Drivetrain({
+                ...value.params,
+                label,
+              })
+            );
+          }}
+        />
+      </label>
 
-function Cells({ drivetrain }) {
-  return (
-    <table className="cells" border="1">
-      <tbody>
-        {drivetrain.byChainring.map((gears, index) => (
-          <Fragment key={index}>
-            <tr>
-              <th scope="row" rowspan={4}>
-                {gears[0].params.front}t
-              </th>
-              {gears.map((gear) => (
-                <td key={gear.key}>{gear.params.rear}t</td>
-              ))}
-              <th />
-            </tr>
-            <tr>
-              {gears.map((gear) => (
-                <td key={gear.key}>{RatioFormatter.format(gear.gainRatio)}</td>
-              ))}
-              <th scope="row">Gain Ratio</th>
-            </tr>
-            <tr>
-              {gears.map((gear) => (
-                <td key={gear.key}>
-                  {SpeedFormatter.format(gear.perHourSpeedAtRPM(85).km)}
-                </td>
-              ))}
-              <th scope="row">85 RPM km/h</th>
-            </tr>
-            <tr>
-              {gears.map((gear) => (
-                <td key={gear.key}>
-                  {SpeedFormatter.format(gear.perHourSpeedAtRPM(95).km)}
-                </td>
-              ))}
-              <th scope="row">95 RPM km/h</th>
-            </tr>
-          </Fragment>
-        ))}
-      </tbody>
-    </table>
+      <label>
+        Front Teeth
+        <ArrayInput
+          value={value.params.fronts}
+          onChange={handleFrontsChange}
+          className="input-fronts"
+        />
+      </label>
+
+      <label>
+        Rear Teeth
+        <ArrayInput
+          value={value.params.rears}
+          onChange={handleRearsChange}
+          className="input-rears"
+        />
+      </label>
+      <label>
+        Crank Length (mm)
+        <input
+          type="number"
+          className="input-small"
+          min={0}
+          value={crank}
+          onChange={(event) => setCrank(event.target.value)}
+          onBlur={() => {
+            if (Number.isNaN(crank)) {
+              return;
+            }
+
+            onChange(
+              new Drivetrain({
+                ...value.params,
+                crankLength: Meters(crank / 1000),
+              })
+            );
+          }}
+        />
+      </label>
+      <label>
+        Bead Seat Diameter (mm)
+        <input
+          type="number"
+          list="bead-seat-diameter-datalist"
+          className="input-small"
+          min={0}
+          value={bsd}
+          onChange={(event) => setBsd(event.target.value)}
+          onBlur={() => {
+            if (Number.isNaN(bsd)) {
+              return;
+            }
+
+            onChange(
+              new Drivetrain({
+                ...value.params,
+                beadSeatDiameter: Meters(bsd / 1000),
+              })
+            );
+          }}
+        />
+      </label>
+      <label>
+        Tire Width (mm)
+        <input
+          type="number"
+          className="input-small"
+          min={0}
+          value={tire}
+          onChange={(event) => setTire(event.target.value)}
+          onBlur={() => {
+            if (Number.isNaN(tire)) {
+              return;
+            }
+
+            onChange(
+              new Drivetrain({
+                ...value.params,
+                tireWidth: Meters(tire / 1000),
+              })
+            );
+          }}
+        />
+      </label>
+      <button
+        type="button"
+        onClick={() => onChange(null)}
+        disabled={!canRemove}
+      >
+        Remove
+      </button>
+    </>
   );
 }
 

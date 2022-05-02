@@ -1,7 +1,7 @@
 import "./App.css";
 import { Drivetrain, Meters } from "./Gearing";
 import Chart, { Legend } from "./Chart";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import Table from "./Table";
 import GainRatio from "./GainRatio";
 import GainRatioChart from "./Chart";
@@ -17,7 +17,6 @@ import GainRatioGrid from "./GainRatioGrid";
 import DrivetrainForm from "./DrivetrainForm";
 import { parse, stringify } from "urlon";
 import { usePrevious } from "./Utils";
-import { range } from "d3-array";
 
 const SAMPLE_DRIVETRAIN = new Drivetrain({
   id: 0,
@@ -29,14 +28,6 @@ const SAMPLE_DRIVETRAIN = new Drivetrain({
   crankLength: Meters(0.17),
   useBestPath: true,
 });
-
-const DEFAULT_PARAMS = {
-  fronts: [34, 50],
-  rears: [11, 12, 13, 15, 17, 19, 22, 25, 28, 32],
-  beadSeatDiameter: Meters(0.584),
-  tireWidth: Meters(0.048),
-  crankLength: Meters(0.17),
-};
 
 function sd(gears) {
   return variance(gears, (gear, index) => {
@@ -81,50 +72,20 @@ function App() {
   const [drivetrains, setDrivetrains] = useState(defaultDrivetrains);
   useQueryState(drivetrains, setDrivetrains);
 
-  const handleAddDrivetrain = useCallback(() => {
-    const newId = range(0, drivetrains.length + 1).find((id) => {
-      return drivetrains.every((drivetrain) => drivetrain.params.id !== id);
-    });
-    setDrivetrains(
-      drivetrains.concat([
-        new Drivetrain({
-          ...DEFAULT_PARAMS,
-          id: newId,
-          label: `Bike ${newId}`,
-        }),
-      ])
-    );
-  }, [drivetrains, setDrivetrains]);
-
   return (
     <>
-      {drivetrains.map((drivetrain) => {
-        return (
-          <DrivetrainForm
-            key={drivetrain.params.id}
-            value={drivetrain}
-            onChange={(newDrivetrain) => {
-              if (newDrivetrain === null) {
-                setDrivetrains(
-                  drivetrains.filter(
-                    (d) => d.params.id !== drivetrain.params.id
-                  )
-                );
-                return;
-              }
-
-              setDrivetrains(
-                drivetrains.map((d) => {
-                  if (d.params.id !== drivetrain.params.id) {
-                    return d;
-                  }
-                  return newDrivetrain;
-                })
-              );
-            }}
-          />
-        );
-      })}
+      <DrivetrainForm value={drivetrains} onChange={setDrivetrains} />
+      <div className="flex-row">
+        <Table drivetrains={drivetrains} />
+        <div>
+          {drivetrains.map((drivetrain) => (
+            <GearStepsChart
+              key={drivetrain.params.id}
+              gears={drivetrain.findBestShifts(sumGears)}
+            />
+          ))}
+        </div>
+      </div>
     </>
   );
 }
