@@ -182,7 +182,7 @@ export class Drivetrain {
       if (index === 0) {
         const easiestInNextSet = this.byChainring[1][0];
         const cutoff = gears.findIndex(
-          (gear) => easiestInNextSet.percentHarderThan(gear) < 0.09
+          (gear) => easiestInNextSet.percentHarderThan(gear) < 0.08
         );
         return {
           outliers: gears.slice(0, cutoff),
@@ -194,7 +194,7 @@ export class Drivetrain {
         const hardestInPrevSet =
           this.byChainring[index - 1][this.byChainring[index - 1].length - 1];
         const cutoff = gears.findIndex(
-          (gear) => gear.percentHarderThan(hardestInPrevSet) > 0.09
+          (gear) => gear.percentHarderThan(hardestInPrevSet) > 0.08
         );
         return {
           outliers: gears.slice(cutoff),
@@ -238,7 +238,7 @@ function recursivelyConstructPaths(sets, setIndex = 0, prevHardestGear = null) {
   }
   const remainder = sets[setIndex].filter(
     (gear) =>
-      prevHardestGear == null || gear.percentHarderThan(prevHardestGear) > 0.09
+      prevHardestGear == null || gear.percentHarderThan(prevHardestGear) > 0.08
   );
   if (setIndex === sets.length - 1) {
     return prevHardestGear == null ? [] : [remainder];

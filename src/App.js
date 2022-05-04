@@ -1,7 +1,7 @@
 import "./App.css";
 import { Drivetrain, Meters } from "./Gearing";
 import Chart, { Legend } from "./Chart";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import Table from "./Table";
 import GainRatio from "./GainRatio";
 import GainRatioChart from "./Chart";
@@ -17,6 +17,9 @@ import GainRatioGrid from "./GainRatioGrid";
 import DrivetrainForm from "./DrivetrainForm";
 import { parse, stringify } from "urlon";
 import { usePrevious } from "./Utils";
+import GearStepsGradient, {
+  GearStepsGradientLegend,
+} from "./GearStepsGradient";
 
 const SAMPLE_DRIVETRAIN = new Drivetrain({
   id: 0,
@@ -39,12 +42,14 @@ function sd(gears) {
 }
 
 function sumGears(gears) {
-  return sum(gears, (gear, index) => {
-    if (index === 0) {
-      return undefined;
-    }
-    return gear.percentHarderThan(gears[index - 1]);
-  });
+  return (
+    sum(gears, (gear, index) => {
+      if (index === 0) {
+        return undefined;
+      }
+      return gear.percentHarderThan(gears[index - 1]);
+    }) / gears.length
+  );
 }
 
 function serialize(drivetrains) {
@@ -75,15 +80,23 @@ function App() {
   return (
     <>
       <DrivetrainForm value={drivetrains} onChange={setDrivetrains} />
+
       <div className="flex-row">
         <Table drivetrains={drivetrains} />
-        <div>
-          {drivetrains.map((drivetrain) => (
-            <GearStepsChart
-              key={drivetrain.params.id}
-              gears={drivetrain.findBestShifts(sumGears)}
-            />
-          ))}
+        <div style={{ marginLeft: 20 }}>
+          <div style={{ marginBottom: 10, fontSize: 13 }}>
+            Percent Harder Shift Steps
+          </div>
+          <div className="flex-row">
+            <GearStepsGradientLegend />
+            {drivetrains.map((drivetrain) => (
+              <GearStepsGradient
+                key={drivetrain.params.id}
+                id={drivetrain.params.id}
+                gears={drivetrain.findBestShifts(sumGears)}
+              />
+            ))}{" "}
+          </div>
         </div>
       </div>
     </>

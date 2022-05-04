@@ -146,7 +146,7 @@ function Label(props) {
   return <Text fontSize={11} angle={30} dx="-0.25em" dy="1em" {...props} />;
 }
 
-function barLabel(easier, harder) {
+export function barLabel(easier, harder) {
   let label = "";
   if (!easier || easier.params.front !== harder.params.front) {
     label += `${harder.params.front}/`;
