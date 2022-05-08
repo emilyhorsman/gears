@@ -95,7 +95,7 @@ function App() {
                 id={drivetrain.params.id}
                 gears={drivetrain.findBestShifts(sumGears)}
               />
-            ))}{" "}
+            ))}
           </div>
         </div>
       </div>
