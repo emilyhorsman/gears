@@ -19,6 +19,7 @@ export class Gear {
 
     const radiusRatio = wheelRadius.m / crankLength.m;
     const gearRatio = front / rear;
+    this.gearRatio = gearRatio;
     this.gainRatio = radiusRatio * gearRatio;
     // The gain ratio describes how much the bike travels per unit of travel around the crank orbit.
     const crankOrbitCircumference = Meters(Math.PI * 2 * crankLength.m);

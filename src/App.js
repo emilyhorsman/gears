@@ -20,6 +20,7 @@ import { usePrevious } from "./Utils";
 import GearStepsGradient, {
   GearStepsGradientLegend,
 } from "./GearStepsGradient";
+import BikeAnimation from "./BikeAnimation";
 
 const SAMPLE_DRIVETRAIN = new Drivetrain({
   id: 0,
@@ -79,6 +80,7 @@ function App() {
 
   return (
     <>
+      <BikeAnimation gear={drivetrains[0].gears[0]} />
       <DrivetrainForm value={drivetrains} onChange={setDrivetrains} />
 
       <div className="flex-row">
