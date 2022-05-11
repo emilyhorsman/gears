@@ -90,7 +90,6 @@ function DrivetrainRowForm({ value, onChange, canRemove }) {
   return (
     <div className={styles.form}>
       <label>
-        <span>Label</span>
         <input
           type="text"
           maxLength={20}
@@ -105,19 +104,19 @@ function DrivetrainRowForm({ value, onChange, canRemove }) {
             );
           }}
         />
+        <span>Label</span>
       </label>
 
       <label>
-        <span>Front Teeth</span>
         <ArrayInput value={value.params.fronts} onChange={handleFrontsChange} />
+        <span>Front Teeth</span>
       </label>
 
       <label>
-        <span>Rear Teeth</span>
         <ArrayInput value={value.params.rears} onChange={handleRearsChange} />
+        <span>Rear Teeth</span>
       </label>
       <label>
-        <span>Crank Length (mm)</span>
         <input
           type="number"
           min={0}
@@ -136,10 +135,10 @@ function DrivetrainRowForm({ value, onChange, canRemove }) {
             );
           }}
         />
+        <span>Crank Length (mm)</span>
       </label>
       <div className={styles.row}>
         <label className={styles.fill}>
-          <span>Bead Seat Diameter (mm)</span>
           <input
             type="number"
             list="bead-seat-diameter-datalist"
@@ -159,9 +158,9 @@ function DrivetrainRowForm({ value, onChange, canRemove }) {
               );
             }}
           />
+          <span>Bead Seat Diameter (mm)</span>
         </label>
         <label>
-          <span>Tire Width (mm)</span>
           <input
             type="number"
             min={0}
@@ -180,6 +179,7 @@ function DrivetrainRowForm({ value, onChange, canRemove }) {
               );
             }}
           />
+          <span>Tire Width (mm)</span>
         </label>
       </div>
     </div>
