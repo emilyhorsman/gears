@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export default function BikeAnimation({ gear, rpm = 6 }) {
+export default function BikeAnimation({ gear, rpm = 80 }) {
   const { front, rear, wheelRadius, crankLength } = gear.params;
   const revolutionPerMillisecond = rpm / 60 / 1000;
   const degPerMillisecond = revolutionPerMillisecond * 360;

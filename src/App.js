@@ -80,7 +80,6 @@ function App() {
 
   return (
     <>
-      <BikeAnimation gear={drivetrains[0].gears[0]} />
       <DrivetrainForm value={drivetrains} onChange={setDrivetrains} />
 
       <div className="flex-row">
