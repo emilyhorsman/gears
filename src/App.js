@@ -21,6 +21,7 @@ import GearStepsGradient, {
   GearStepsGradientLegend,
 } from "./GearStepsGradient";
 import BikeAnimation from "./BikeAnimation";
+import styles from "./App.module.css";
 
 const SAMPLE_DRIVETRAIN = new Drivetrain({
   id: 0,
@@ -79,28 +80,13 @@ function App() {
   useQueryState(drivetrains, setDrivetrains);
 
   return (
-    <>
+    <div className={styles.container}>
       <DrivetrainForm value={drivetrains} onChange={setDrivetrains} />
 
       <div className="flex-row">
         <Table drivetrains={drivetrains} />
-        <div style={{ marginLeft: 20 }}>
-          <div style={{ marginBottom: 10, fontSize: 13 }}>
-            Percent Harder Shift Steps
-          </div>
-          <div className="flex-row">
-            <GearStepsGradientLegend />
-            {drivetrains.map((drivetrain) => (
-              <GearStepsGradient
-                key={drivetrain.params.id}
-                id={drivetrain.params.id}
-                gears={drivetrain.findBestShifts(sumGears)}
-              />
-            ))}
-          </div>
-        </div>
       </div>
-    </>
+    </div>
   );
 }
 

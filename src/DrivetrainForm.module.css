@@ -3,13 +3,11 @@
   --light-grey: #a7c0cd;
 }
 
-.form {
+.container {
   --spacing-horiz: 10px;
   --spacing-vert: 10px;
   --border-radius: 5px;
-}
 
-.form {
   width: 300px;
 }
 
@@ -98,4 +96,19 @@
 .form > label input,
 .form > .row input {
   border-bottom-width: 1px;
+}
+
+.removeButton {
+  border: 0;
+  background: none;
+  font-size: 0.75em;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  margin: var(--spacing-vert) 0 calc(var(--spacing-vert) * 2) 0;
 }
