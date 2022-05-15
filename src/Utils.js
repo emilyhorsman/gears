@@ -6,7 +6,7 @@ export const RatioFormatter = new Intl.NumberFormat(undefined, {
 });
 
 export const GearInchesFormatter = new Intl.NumberFormat(undefined, {
-  minimumFractionDigits: 1,
+  minimumFractionDigits: 0,
   maximumFractionDigits: 1,
 });
 

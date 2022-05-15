@@ -1,6 +1,17 @@
 import { RatioFormatter, GearInchesFormatter } from "./Utils";
 
-function Table({ drivetrain }) {
+export const metrics = [
+  {
+    label: "Gain Ratio",
+    value: (gear) => RatioFormatter.format(gear.gainRatio),
+  },
+  {
+    label: "Gear Inches",
+    value: (gear) => GearInchesFormatter.format(gear.gearInches),
+  },
+];
+
+function Table({ drivetrain, valueFunc = metrics[0].value }) {
   return (
     <table>
       <thead>
@@ -23,9 +34,7 @@ function Table({ drivetrain }) {
                 {frontTeeth}t
               </th>
               {gears.map((gear) => (
-                <td key={gear.gainRatio}>
-                  {RatioFormatter.format(gear.gainRatio)}
-                </td>
+                <td key={gear.gainRatio}>{valueFunc(gear)}</td>
               ))}
             </tr>
           );
