@@ -28,7 +28,7 @@ function DrivetrainForm({ value, onChange }) {
   }, [value, onChange]);
 
   return (
-    <div>
+    <div className={styles.grid}>
       {value.map((drivetrain) => {
         return (
           <DrivetrainRowForm
@@ -60,11 +60,6 @@ function DrivetrainForm({ value, onChange }) {
           Compare Another Drivetrain
         </button>
       </div>
-      <datalist id="bead-seat-diameter-datalist">
-        <option value={622} label='700c / 29"' />
-        <option value={584} label='650b / 27.5"' />
-        <option value={559} label='26"' />
-      </datalist>
     </div>
   );
 }
@@ -88,116 +83,85 @@ function DrivetrainRowForm({ value, onChange, canRemove }) {
   const [tire, setTire] = useState(value.params.tireWidth.mm);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.form}>
-        <label>
-          <input
-            type="text"
-            maxLength={20}
-            value={label}
-            onChange={(event) => setLabel(event.target.value)}
-            onBlur={() => {
-              onChange(
-                new Drivetrain({
-                  ...value.params,
-                  label,
-                })
-              );
-            }}
-          />
-          <span>Label</span>
-        </label>
+    <>
+      <input
+        type="text"
+        maxLength={20}
+        value={label}
+        onChange={(event) => setLabel(event.target.value)}
+        onBlur={() => {
+          onChange(
+            new Drivetrain({
+              ...value.params,
+              label,
+            })
+          );
+        }}
+      />
+      <ArrayInput value={value.params.fronts} onChange={handleFrontsChange} />
+      <ArrayInput value={value.params.rears} onChange={handleRearsChange} />
+      <input
+        type="number"
+        min={0}
+        value={crank}
+        onChange={(event) => setCrank(event.target.value)}
+        onBlur={() => {
+          if (Number.isNaN(crank)) {
+            return;
+          }
 
-        <label>
-          <ArrayInput
-            value={value.params.fronts}
-            onChange={handleFrontsChange}
-          />
-          <span>Front Teeth</span>
-        </label>
+          onChange(
+            new Drivetrain({
+              ...value.params,
+              crankLength: Meters(crank / 1000),
+            })
+          );
+        }}
+      />
+      <input
+        type="number"
+        min={0}
+        value={bsd}
+        onChange={(event) => setBsd(event.target.value)}
+        onBlur={() => {
+          if (Number.isNaN(bsd)) {
+            return;
+          }
 
-        <label>
-          <ArrayInput value={value.params.rears} onChange={handleRearsChange} />
-          <span>Rear Teeth</span>
-        </label>
-        <label>
-          <input
-            type="number"
-            min={0}
-            value={crank}
-            onChange={(event) => setCrank(event.target.value)}
-            onBlur={() => {
-              if (Number.isNaN(crank)) {
-                return;
-              }
+          onChange(
+            new Drivetrain({
+              ...value.params,
+              beadSeatDiameter: Meters(bsd / 1000),
+            })
+          );
+        }}
+      />
+      <input
+        type="number"
+        min={0}
+        value={tire}
+        onChange={(event) => setTire(event.target.value)}
+        onBlur={() => {
+          if (Number.isNaN(tire)) {
+            return;
+          }
 
-              onChange(
-                new Drivetrain({
-                  ...value.params,
-                  crankLength: Meters(crank / 1000),
-                })
-              );
-            }}
-          />
-          <span>Crank Length (mm)</span>
-        </label>
-        <div className={styles.row}>
-          <label className={styles.fill}>
-            <input
-              type="number"
-              list="bead-seat-diameter-datalist"
-              min={0}
-              value={bsd}
-              onChange={(event) => setBsd(event.target.value)}
-              onBlur={() => {
-                if (Number.isNaN(bsd)) {
-                  return;
-                }
-
-                onChange(
-                  new Drivetrain({
-                    ...value.params,
-                    beadSeatDiameter: Meters(bsd / 1000),
-                  })
-                );
-              }}
-            />
-            <span>Bead Seat Diameter (mm)</span>
-          </label>
-          <label>
-            <input
-              type="number"
-              min={0}
-              value={tire}
-              onChange={(event) => setTire(event.target.value)}
-              onBlur={() => {
-                if (Number.isNaN(tire)) {
-                  return;
-                }
-
-                onChange(
-                  new Drivetrain({
-                    ...value.params,
-                    tireWidth: Meters(tire / 1000),
-                  })
-                );
-              }}
-            />
-            <span>Tire Width (mm)</span>
-          </label>
-        </div>
-      </div>
-      <div className={styles.footer}>
-        <button
-          className={styles.removeButton}
-          type="button"
-          onClick={() => onChange(null)}
-          disabled={!canRemove}
-        >
-          Remove
-        </button>
-      </div>
-    </div>
+          onChange(
+            new Drivetrain({
+              ...value.params,
+              tireWidth: Meters(tire / 1000),
+            })
+          );
+        }}
+      />
+      <button
+        type="button"
+        disabled={!canRemove}
+        onClick={() => onChange(null)}
+      >
+        Remove
+      </button>
+    </>
   );
 }
 

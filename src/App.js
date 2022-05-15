@@ -80,7 +80,7 @@ function App() {
   useQueryState(drivetrains, setDrivetrains);
 
   return (
-    <div className={styles.container}>
+    <div>
       <DrivetrainForm value={drivetrains} onChange={setDrivetrains} />
 
       <div className="flex-row">
