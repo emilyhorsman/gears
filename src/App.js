@@ -22,6 +22,7 @@ import GearStepsGradient, {
 } from "./GearStepsGradient";
 import BikeAnimation from "./BikeAnimation";
 import styles from "./App.module.css";
+import Showcase from "./Showcase";
 
 const SAMPLE_DRIVETRAIN = new Drivetrain({
   id: 0,
@@ -80,13 +81,10 @@ function App() {
   useQueryState(drivetrains, setDrivetrains);
 
   return (
-    <div>
+    <>
       <DrivetrainForm value={drivetrains} onChange={setDrivetrains} />
-
-      <div className="flex-row">
-        <Table drivetrains={drivetrains} />
-      </div>
-    </div>
+      <Showcase drivetrains={drivetrains} />
+    </>
   );
 }
 

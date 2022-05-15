@@ -43,6 +43,12 @@ table {
   line-height: 1;
 }
 
+tbody,
+thead,
+tr {
+  max-width: 100%;
+}
+
 tbody th,
 thead th:first-child {
   border-right: 1px solid #78909c;
@@ -74,4 +80,8 @@ tbody td,
 thead th {
   padding-left: 5px;
   padding-right: 5px;
+}
+
+td {
+  min-width: 4.5ch;
 }

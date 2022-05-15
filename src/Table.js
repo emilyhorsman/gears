@@ -1,17 +1,6 @@
 import { RatioFormatter, GearInchesFormatter } from "./Utils";
-import { Fragment } from "react";
 
-function Table({ drivetrains }) {
-  return (
-    <div>
-      {drivetrains.map((drivetrain) => (
-        <Drivetrain drivetrain={drivetrain} key={drivetrain.params.id} />
-      ))}
-    </div>
-  );
-}
-
-function Drivetrain({ drivetrain }) {
+function Table({ drivetrain }) {
   return (
     <table>
       <thead>
