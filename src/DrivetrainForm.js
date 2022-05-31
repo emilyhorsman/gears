@@ -2,6 +2,8 @@ import { Drivetrain, Meters } from "./Gearing";
 import { range } from "d3-array";
 import { useCallback, useEffect, useState, useRef } from "react";
 import styles from "./DrivetrainForm.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClone, faTrashCan } from "@fortawesome/free-regular-svg-icons";
 
 const DEFAULT_PARAMS = {
   fronts: [34, 50],
@@ -154,13 +156,18 @@ function DrivetrainRowForm({ value, onChange, canRemove }) {
           );
         }}
       />
-      <button
-        type="button"
-        disabled={!canRemove}
-        onClick={() => onChange(null)}
-      >
-        Remove
-      </button>
+      <div>
+        <button
+          type="button"
+          disabled={!canRemove}
+          onClick={() => onChange(null)}
+        >
+          <FontAwesomeIcon icon={faTrashCan} />
+        </button>
+        <button type="button">
+          <FontAwesomeIcon icon={faClone} />
+        </button>
+      </div>
     </>
   );
 }

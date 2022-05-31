@@ -2,6 +2,7 @@ import "./App.css";
 import { Drivetrain, Meters } from "./Gearing";
 import Chart, { Legend } from "./Chart";
 import { Fragment, useEffect, useRef, useState } from "react";
+import * as React from "react";
 import Table from "./Table";
 import GainRatio from "./GainRatio";
 import GainRatioChart from "./Chart";
