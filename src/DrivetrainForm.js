@@ -13,11 +13,15 @@ const DEFAULT_PARAMS = {
   crankLength: Meters(0.17),
 };
 
+function getNewId(value) {
+  return range(0, value.length + 1).find((id) => {
+    return value.every((drivetrain) => drivetrain.params.id !== id);
+  });
+}
+
 function DrivetrainForm({ value, onChange }) {
   const handleAddDrivetrain = useCallback(() => {
-    const newId = range(0, value.length + 1).find((id) => {
-      return value.every((drivetrain) => drivetrain.params.id !== id);
-    });
+    const newId = getNewId(value);
     onChange(
       value.concat([
         new Drivetrain({
@@ -28,6 +32,19 @@ function DrivetrainForm({ value, onChange }) {
       ])
     );
   }, [value, onChange]);
+
+  const handleCopyDrivetrain = (drivetrain) => {
+    const newId = getNewId(value);
+    onChange(
+      value.concat([
+        new Drivetrain({
+          ...drivetrain.params,
+          id: newId,
+          label: `Bike ${newId}`,
+        }),
+      ])
+    );
+  };
 
   return (
     <div className={styles.grid}>
@@ -54,6 +71,7 @@ function DrivetrainForm({ value, onChange }) {
                 })
               );
             }}
+            onCopy={() => handleCopyDrivetrain(drivetrain)}
           />
         );
       })}
@@ -66,7 +84,7 @@ function DrivetrainForm({ value, onChange }) {
   );
 }
 
-function DrivetrainRowForm({ value, onChange, canRemove }) {
+function DrivetrainRowForm({ value, onChange, canRemove, onCopy }) {
   const handleFrontsChange = useCallback(
     (fronts) => {
       return onChange(new Drivetrain({ ...value.params, fronts }));
@@ -164,7 +182,7 @@ function DrivetrainRowForm({ value, onChange, canRemove }) {
         >
           <FontAwesomeIcon icon={faTrashCan} />
         </button>
-        <button type="button">
+        <button type="button" onClick={onCopy}>
           <FontAwesomeIcon icon={faClone} />
         </button>
       </div>
