@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, useRef } from "react";
 import styles from "./DrivetrainForm.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClone, faTrashCan } from "@fortawesome/free-regular-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 const DEFAULT_PARAMS = {
   fronts: [34, 50],
@@ -75,9 +76,14 @@ function DrivetrainForm({ value, onChange }) {
           />
         );
       })}
-      <div className="footer">
-        <button type="button" onClick={handleAddDrivetrain}>
-          Compare Another Drivetrain
+      <div className={styles.footer}>
+        <button
+          type="button"
+          onClick={handleAddDrivetrain}
+          className="icon-button"
+          title="Compare Another Drivetrain"
+        >
+          <FontAwesomeIcon icon={faPlus} />
         </button>
       </div>
     </div>
@@ -174,16 +180,23 @@ function DrivetrainRowForm({ value, onChange, canRemove, onCopy }) {
           );
         }}
       />
-      <div>
+      <div className={styles.actions}>
+        <button
+          type="button"
+          onClick={onCopy}
+          className="icon-button"
+          title="Duplicate"
+        >
+          <FontAwesomeIcon icon={faClone} />
+        </button>
         <button
           type="button"
           disabled={!canRemove}
           onClick={() => onChange(null)}
+          className="icon-button"
+          title="Delete"
         >
           <FontAwesomeIcon icon={faTrashCan} />
-        </button>
-        <button type="button" onClick={onCopy}>
-          <FontAwesomeIcon icon={faClone} />
         </button>
       </div>
     </>

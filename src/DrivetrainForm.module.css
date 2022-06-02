@@ -30,3 +30,15 @@
   outline-color: -webkit-focus-ring-color;
   z-index: 2;
 }
+
+.actions,
+.footer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.footer {
+  grid-column: -2;
+  margin-top: 2px;
+}
