@@ -4,17 +4,18 @@ import { useCallback, useState } from "react";
 
 export default function Showcase({ drivetrains }) {
   const [metric, setMetric] = useState(metrics[0]);
+  const [hover, setHover] = useState(null);
 
   return (
     <>
-      <MetricSelector value={metric} onChange={setMetric} />
+      <MetricSelector value={metric} onChange={setMetric} setHover={setHover} />
 
       <div className={styles.container}>
         {drivetrains.map((drivetrain) => (
           <Drivetrain
             key={drivetrain.params.id}
             drivetrain={drivetrain}
-            metric={metric}
+            metric={hover ?? metric}
           />
         ))}
       </div>
@@ -33,11 +34,15 @@ function Drivetrain({ drivetrain, metric }) {
   );
 }
 
-function MetricSelector({ value, onChange }) {
+function MetricSelector({ value, onChange, setHover }) {
   return (
     <div>
       {metrics.map((metric) => (
-        <label key={metric.label}>
+        <label
+          key={metric.label}
+          onMouseEnter={() => setHover(metric)}
+          onMouseLeave={() => setHover(null)}
+        >
           <input
             type="radio"
             value={metric.label}
