@@ -1,6 +1,6 @@
 import styles from "./Showcase.module.css";
 import Table, { metrics } from "./Table";
-import { useCallback, useState } from "react";
+import { Fragment, useCallback, useState } from "react";
 
 export default function Showcase({ drivetrains }) {
   const [metric, setMetric] = useState(metrics[0]);
@@ -25,18 +25,34 @@ export default function Showcase({ drivetrains }) {
 
 function Drivetrain({ drivetrain, metric }) {
   return (
-    <div>
-      <h2>{drivetrain.params.label}</h2>
-      <div>
-        <Table drivetrain={drivetrain} valueFunc={metric.value} />
-      </div>
-    </div>
+    <>
+      <div className={styles.labelDrivetrain}>{drivetrain.params.label}</div>
+      {drivetrain.params.rears
+        .slice()
+        .reverse()
+        .map((rear) => (
+          <div key={rear} className={styles.labelRearRow}>
+            {rear}t
+          </div>
+        ))}
+      {drivetrain.byChainring.map((gears) => {
+        const frontTeeth = gears[0].params.front;
+        return (
+          <Fragment key={frontTeeth}>
+            <div className={styles.labelFront}>{frontTeeth}t</div>
+            {gears.map((gear) => (
+              <div key={gear.gainRatio}>{metric.value(gear)}</div>
+            ))}
+          </Fragment>
+        );
+      })}
+    </>
   );
 }
 
 function MetricSelector({ value, onChange, setHover }) {
   return (
-    <div>
+    <div className={styles.metricSelector}>
       {metrics.map((metric) => (
         <label
           key={metric.label}
