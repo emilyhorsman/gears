@@ -52,9 +52,9 @@ function DrivetrainForm({ value, onChange }) {
       <Header>Name</Header>
       <Header>Front</Header>
       <Header>Rear</Header>
-      <Header>Crank</Header>
-      <Header>BSD</Header>
-      <Header>Tire</Header>
+      <Header tooltip="Crank Length (mm)">Crank</Header>
+      <Header tooltip="Bead Seat Diameter">BSD</Header>
+      <Header tooltip="Tire Width">Tire</Header>
       <div />
       {value.map((drivetrain) => {
         return (
