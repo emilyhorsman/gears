@@ -4,12 +4,21 @@
 
 .grid {
   display: grid;
-  grid-template-columns: 15ch 9ch 40ch repeat(3, 8ch) 10ch;
+  grid-template-columns: 15ch 9ch 40ch repeat(3, 6.5ch) 10ch;
   gap: 1px;
 
   --cell-padding-horiz: 8px;
   --cell-padding-vert: 5px;
   --light-grey: #a7c0cd;
+  --lightest-grey: #e8eff2;
+}
+
+.header {
+  padding: var(--cell-padding-vert) var(--cell-padding-horiz);
+  outline: 1px solid var(--light-grey);
+  background-color: var(--lightest-grey);
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
 .grid input {

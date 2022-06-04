@@ -49,6 +49,13 @@ function DrivetrainForm({ value, onChange }) {
 
   return (
     <div className={styles.grid}>
+      <Header>Name</Header>
+      <Header>Front</Header>
+      <Header>Rear</Header>
+      <Header>Crank</Header>
+      <Header>BSD</Header>
+      <Header>Tire</Header>
+      <div />
       {value.map((drivetrain) => {
         return (
           <DrivetrainRowForm
@@ -88,6 +95,10 @@ function DrivetrainForm({ value, onChange }) {
       </div>
     </div>
   );
+}
+
+function Header({ children }) {
+  return <div className={styles.header}>{children}</div>;
 }
 
 function DrivetrainRowForm({ value, onChange, canRemove, onCopy }) {
