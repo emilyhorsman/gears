@@ -126,24 +126,26 @@ function Header({ children, tooltip }) {
       onMouseLeave={() => setIsActive(false)}
     >
       {children}
-      <span
-        className={styles.tooltip}
-        ref={floating}
-        style={{
-          position: strategy,
-          left: x,
-          top: y,
-          visibility: isActive ? "visible" : "hidden",
-        }}
-        role="tooltip"
-      >
-        {tooltip}
-        <div
-          className={styles.arrow}
-          ref={arrowRef}
-          style={{ top: -8, left: arrowX }}
-        />
-      </span>
+      {tooltip && (
+        <span
+          className={styles.tooltip}
+          ref={floating}
+          style={{
+            position: strategy,
+            left: x,
+            top: y,
+            visibility: isActive ? "visible" : "hidden",
+          }}
+          role="tooltip"
+        >
+          {tooltip}
+          <div
+            className={styles.arrow}
+            ref={arrowRef}
+            style={{ top: -8, left: arrowX }}
+          />
+        </span>
+      )}
     </div>
   );
 }
