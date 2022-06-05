@@ -41,7 +41,7 @@ export default function BikeAnimation({ gear, rpm = 80 }) {
     return () => {
       id != null && window.cancelAnimationFrame(id);
     };
-  }, []);
+  }, [degPerMillisecond]);
 
   return (
     <svg width={900} height={400} viewBox="-900 -400 1800 800">

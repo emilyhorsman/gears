@@ -1,15 +1,13 @@
-import { Bar, Line } from "@visx/shape";
+import { Line } from "@visx/shape";
 import { Group } from "@visx/group";
 import { scaleBand, scaleLog, scaleLinear } from "@visx/scale";
 import { GridColumns } from "@visx/grid";
 import { AxisBottom } from "@visx/axis";
-import { localPoint } from "@visx/event";
 import { PatternLines } from "@visx/pattern";
 import { Text } from "@visx/text";
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import { GlyphCircle, GlyphCross, GlyphWye } from "@visx/glyph";
 
-const barHeight = 10;
 const glyphs = [GlyphCircle, GlyphWye, GlyphCross];
 const palette = ["#2E78D2", "#FF7043", "#26C6DA", "#4B636E"];
 
@@ -92,7 +90,6 @@ export function Chart(props) {
   const yScales = gearScales(props);
   const xMax = width - margin.left - margin.right;
   const yMax = height - margin.top - margin.bottom;
-  const [curGear, setCurGear] = useState(null);
 
   return (
     <>
@@ -122,45 +119,19 @@ export function Chart(props) {
           {drivetrains.map((drivetrain, index) => {
             const yScale = yScales[index];
             return (
-              <Fragment key={index}>
-                {curGear && (
-                  <HoverArea
-                    gear={curGear}
-                    {...{ xScale, yScale, minRPM, maxRPM, yMax }}
-                  />
-                )}
-                <GearRPMSpeedBars
-                  gears={drivetrain.gears}
-                  xScale={xScale}
-                  yScale={yScale}
-                  minRPM={minRPM}
-                  maxRPM={maxRPM}
-                  curGear={curGear}
-                  color={palette[index]}
-                  GlyphComponent={glyphs[index]}
-                />
-              </Fragment>
+              <GearRPMSpeedBars
+                key={index}
+                gears={drivetrain.gears}
+                xScale={xScale}
+                yScale={yScale}
+                minRPM={minRPM}
+                maxRPM={maxRPM}
+                color={palette[index]}
+                GlyphComponent={glyphs[index]}
+              />
             );
           })}
         </Group>
-        <rect
-          width={width}
-          height={height}
-          fill="transparent"
-          onMouseMove={(event) => {
-            const point = localPoint(event);
-            const datum = null; /*findDatum(point, {
-              gears,
-              xScale,
-              yScale,
-              minRPM,
-              maxRPM,
-              margin,
-            });*/
-            setCurGear(datum);
-          }}
-          onMouseLeave={() => setCurGear(null)}
-        />
       </svg>
     </>
   );
@@ -207,70 +178,12 @@ function GearRPMSpeedBars({
   );
 }
 
-function HoverArea({ gear, xScale, yScale, minRPM, maxRPM, yMax }) {
-  const minSpeed = gear.perHourSpeedAtRPM(minRPM).km;
-  const maxSpeed = gear.perHourSpeedAtRPM(maxRPM).km;
-  const x0 = xScale(minSpeed);
-  const x1 = xScale(maxSpeed);
-  const y = yScale.range()[0];
-  const height = yScale.range()[1] - y;
-  return (
-    <>
-      <Bar x={x0} y={y} height={height} width={x1 - x0} fill="url('#lines')" />
-      <Text
-        x={x0 + (x1 - x0) / 2}
-        y={y - 15}
-        verticalAnchor="start"
-        textAnchor="middle"
-        dx="0.25em"
-        fontSize={13}
-      >
-        {`${gear.gainRatio.toFixed(2)} ${minSpeed.toFixed(
-          1
-        )} – ${maxSpeed.toFixed(1)} kmh`}
-      </Text>
-    </>
-  );
-}
-
-const LeftTickLabel = (margin) => ({ x, y, formattedValue }) => {
-  return (
-    <Text
-      dx="-0.25em"
-      dy="-0.1em"
-      textAnchor="end"
-      x={x}
-      y={y}
-      fontSize={13}
-      verticalAnchor="middle"
-      width={margin.left - 20}
-    >
-      {formattedValue}
-    </Text>
-  );
-};
-
 function BottomTickLabel({ x, y, formattedValue }) {
   return (
     <text textAnchor="middle" dy="0.25em" x={x} y={y} fontSize={13}>
       {formattedValue}
     </text>
   );
-}
-
-function findDatum(point, { gears, xScale, yScale, minRPM, maxRPM, margin }) {
-  const x = point.x - margin.left;
-  const y = point.y - margin.top;
-  return gears.find((gear) => {
-    const x0 = xScale(gear.perHourSpeedAtRPM(minRPM).km);
-    const x1 = xScale(gear.perHourSpeedAtRPM(maxRPM).km);
-    if (x < x0 || x > x1) {
-      return false;
-    }
-    const y0 = yScale(gear.gainRatio) - barHeight / 2;
-    const y1 = y0 + barHeight;
-    return y >= y0 && y <= y1;
-  });
 }
 
 function speedScale({ drivetrains, minRPM, maxRPM, width, margin }) {
