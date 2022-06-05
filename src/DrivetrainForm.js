@@ -5,6 +5,7 @@ import styles from "./DrivetrainForm.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClone, faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { offset, shift, useFloating, arrow } from "@floating-ui/react-dom";
 
 const DEFAULT_PARAMS = {
   fronts: [34, 50],
@@ -97,8 +98,54 @@ function DrivetrainForm({ value, onChange }) {
   );
 }
 
-function Header({ children }) {
-  return <div className={styles.header}>{children}</div>;
+function Header({ children, tooltip }) {
+  const arrowRef = useRef(null);
+  const {
+    x,
+    y,
+    reference,
+    floating,
+    strategy,
+    middlewareData: { arrow: { x: arrowX, y: arrowY } = {} },
+  } = useFloating({
+    placement: "bottom",
+    strategy: "fixed",
+    middleware: [
+      offset(5),
+      shift({ padding: 5 }),
+      arrow({ element: arrowRef }),
+    ],
+  });
+  const [isActive, setIsActive] = useState(false);
+
+  return (
+    <div
+      className={styles.header}
+      ref={reference}
+      onMouseEnter={() => setIsActive(true)}
+      onMouseLeave={() => setIsActive(false)}
+    >
+      {children}
+      <span
+        className={styles.tooltip}
+        ref={floating}
+        style={{
+          position: strategy,
+          left: x,
+          top: y,
+          visibility: isActive ? "visible" : "hidden",
+        }}
+        role="tooltip"
+      >
+        {tooltip}
+        <div
+          className={styles.arrow}
+          ref={arrowRef}
+          style={{ top: -8, left: arrowX }}
+        />
+      </span>
+    </div>
+  );
 }
 
 function DrivetrainRowForm({ value, onChange, canRemove, onCopy }) {
