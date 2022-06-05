@@ -1,7 +1,7 @@
 import { Brush } from "@visx/brush";
 
 import { GlyphSeries, XYChart, Axis, DataContext } from "@visx/xychart";
-import { useState, useContext, Fragment } from "react";
+import { useState, useContext } from "react";
 
 const accessors = {
   xAccessor: (gear) => gear.gainRatio,

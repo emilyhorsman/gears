@@ -2,7 +2,7 @@ import { Bar, Line } from "@visx/shape";
 import { Group } from "@visx/group";
 import { scaleBand, scaleLog, scaleLinear } from "@visx/scale";
 import { GridColumns } from "@visx/grid";
-import { AxisBottom, AxisLeft } from "@visx/axis";
+import { AxisBottom } from "@visx/axis";
 import { localPoint } from "@visx/event";
 import { PatternLines } from "@visx/pattern";
 import { Text } from "@visx/text";
@@ -18,13 +18,9 @@ function GainRatioChart(props) {
   const height = 300;
   const xMax = width - margin.left - margin.right;
   const yMax = height - margin.top - margin.bottom;
-  const multiples = drivetrains.map(
-    (drivetrain) => drivetrain.hardestGear.multipleHarderThanEasiestGear
-  );
   const ratios = drivetrains.flatMap((drivetrain) => {
     return [drivetrain.easiestGear.gainRatio, drivetrain.hardestGear.gainRatio];
   });
-  const globalDomain = domain(ratios, 1);
   const xScale = scaleLog({
     range: [0, xMax],
     domain: [Math.min(...ratios), Math.max(...ratios)],
@@ -90,16 +86,13 @@ function GainRatioChart(props) {
   );
 }
 
-function Chart(props) {
+export function Chart(props) {
   const { drivetrains, minRPM, maxRPM, margin, width, height } = props;
   const xScale = speedScale(props);
   const yScales = gearScales(props);
   const xMax = width - margin.left - margin.right;
   const yMax = height - margin.top - margin.bottom;
-  const LeftTickLabelComponent = LeftTickLabel(margin);
   const [curGear, setCurGear] = useState(null);
-
-  const gears = drivetrains.flatMap((drivetrain) => drivetrain.gears);
 
   return (
     <>

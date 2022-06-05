@@ -11,13 +11,16 @@ function GainRatioGrid({ drivetrains, width }) {
   const ratioExtent = extent(
     drivetrains.flatMap(({ gears }) => gears.map(({ gainRatio }) => gainRatio))
   );
-  const percentStep = 1.1;
+  const percentStep = 1.06;
   const numCols = Math.ceil(
     Math.log(Math.ceil(ratioExtent[1])) / Math.log(percentStep)
   );
   const length = Math.floor(width / (numCols + 1));
 
-  const xScale = scaleLog().base(percentStep).domain(ratioExtent).range([0, 1]);
+  const xScale = scaleLog()
+    .base(percentStep)
+    .domain(ratioExtent)
+    .range([0, 1]);
   const quantize = scaleQuantize()
     .domain(xScale.range())
     .range(range(0, width, length));
