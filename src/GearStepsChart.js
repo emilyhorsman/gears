@@ -3,11 +3,9 @@ import { range } from "d3-array";
 import { scaleBand, scaleLinear } from "d3-scale";
 import { Text } from "@visx/text";
 import { Fragment } from "react";
-import { PercentageFormatter, RatioFormatter, SpeedFormatter } from "./Utils";
+import { PercentageFormatter } from "./Utils";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { Group } from "@visx/group";
-import { mean } from "d3-array";
-import { sum } from "d3-array";
 import { GridRows } from "@visx/grid";
 
 function GearStepsChart({ gears }) {
@@ -18,11 +16,6 @@ function GearStepsChart({ gears }) {
     .paddingOuter(0.4)
     .align(0.3);
   const yScale = scaleLinear().domain([0.05, 0.2]).range([100, 0]);
-  const meanStep = mean(
-    range(1, gears.length).map((index) =>
-      gears[index].percentHarderThan(gears[index - 1])
-    )
-  );
 
   return (
     <svg width={400} height={150} style={{ display: "block", margin: 10 }}>

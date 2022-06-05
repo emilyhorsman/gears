@@ -106,7 +106,7 @@ function Header({ children, tooltip }) {
     reference,
     floating,
     strategy,
-    middlewareData: { arrow: { x: arrowX, y: arrowY } = {} },
+    middlewareData: { arrow: { x: arrowX } = {} },
   } = useFloating({
     placement: "bottom",
     strategy: "fixed",
@@ -155,13 +155,13 @@ function DrivetrainRowForm({ value, onChange, canRemove, onCopy }) {
     (fronts) => {
       return onChange(new Drivetrain({ ...value.params, fronts }));
     },
-    [onChange]
+    [onChange, value.params]
   );
   const handleRearsChange = useCallback(
     (rears) => {
       return onChange(new Drivetrain({ ...value.params, rears }));
     },
-    [onChange]
+    [onChange, value.params]
   );
   const [label, setLabel] = useState(value.params.label);
   const [crank, setCrank] = useState(value.params.crankLength.mm);

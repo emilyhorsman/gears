@@ -1,7 +1,5 @@
-import { greatest } from "d3-array";
 import { minIndex } from "d3-array";
-import { min, max, extent, range } from "d3-array";
-import { RatioFormatter } from "./Utils";
+import { range } from "d3-array";
 
 export function Meters(meters) {
   return {

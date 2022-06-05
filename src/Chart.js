@@ -1,7 +1,7 @@
 import { Bar, Line } from "@visx/shape";
 import { Group } from "@visx/group";
 import { scaleBand, scaleLog, scaleLinear } from "@visx/scale";
-import { Grid, GridColumns } from "@visx/grid";
+import { GridColumns } from "@visx/grid";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { localPoint } from "@visx/event";
 import { PatternLines } from "@visx/pattern";
@@ -240,24 +240,22 @@ function HoverArea({ gear, xScale, yScale, minRPM, maxRPM, yMax }) {
   );
 }
 
-const LeftTickLabel =
-  (margin) =>
-  ({ x, y, formattedValue }) => {
-    return (
-      <Text
-        dx="-0.25em"
-        dy="-0.1em"
-        textAnchor="end"
-        x={x}
-        y={y}
-        fontSize={13}
-        verticalAnchor="middle"
-        width={margin.left - 20}
-      >
-        {formattedValue}
-      </Text>
-    );
-  };
+const LeftTickLabel = (margin) => ({ x, y, formattedValue }) => {
+  return (
+    <Text
+      dx="-0.25em"
+      dy="-0.1em"
+      textAnchor="end"
+      x={x}
+      y={y}
+      fontSize={13}
+      verticalAnchor="middle"
+      width={margin.left - 20}
+    >
+      {formattedValue}
+    </Text>
+  );
+};
 
 function BottomTickLabel({ x, y, formattedValue }) {
   return (

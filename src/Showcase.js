@@ -1,6 +1,6 @@
 import styles from "./Showcase.module.css";
-import Table, { metrics } from "./Table";
-import { Fragment, useCallback, useState } from "react";
+import { metrics } from "./Table";
+import { Fragment, useState } from "react";
 
 export default function Showcase({ drivetrains }) {
   const [metric, setMetric] = useState(metrics[0]);

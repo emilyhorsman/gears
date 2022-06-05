@@ -7,8 +7,6 @@ import { Brush } from "@visx/brush";
 import { Text } from "@visx/text";
 import { GridColumns } from "@visx/grid";
 import { Line } from "@visx/shape";
-import { scaleLog, scaleSequential } from "d3-scale";
-import { interpolateLab } from "d3-interpolate";
 
 const ChartContext = createContext({});
 const palette = ["#2E78D2", "#FF7043", "#26C6DA", "#4B636E"];
@@ -51,17 +49,8 @@ function GainRatioComparisonChart({ drivetrains, width, height }) {
   );
 }
 
-const teethScale = scaleLinear({
-  domain: [9, 52],
-  range: [8, 20],
-  clamp: true,
-});
-
 function GearGlyph({ x, y, prevGear, curGear, color, xScale }) {
-  const {
-    gainRatio,
-    params: { front, rear },
-  } = curGear;
+  const { gainRatio } = curGear;
   const increase =
     prevGear == null ? null : curGear.percentHarderThan(prevGear);
   const prevX = prevGear == null ? null : xScale(prevGear.gainRatio);

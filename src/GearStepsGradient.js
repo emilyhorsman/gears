@@ -41,7 +41,6 @@ export function GearStepsGradientLegend() {
       <Text
         x={legendX}
         y={5}
-        fill="black"
         textAnchor="end"
         verticalAnchor="start"
         dx="-0.25em"
@@ -53,7 +52,6 @@ export function GearStepsGradientLegend() {
       <Text
         x={legendX}
         y={height - 5}
-        fill="black"
         textAnchor="end"
         verticalAnchor="end"
         dx="-0.25em"
