@@ -150,6 +150,17 @@ function Header({ children, tooltip }) {
   );
 }
 
+function useStateWithSyncedDefault(upstream) {
+  const [value, onChange] = useState(upstream);
+  useEffect(() => {
+    if (value !== upstream) {
+      onChange(upstream);
+    }
+  }, [upstream]);
+
+  return [value, onChange];
+}
+
 function DrivetrainRowForm({ value, onChange, canRemove, onCopy }) {
   const handleFrontsChange = useCallback(
     (fronts) => {
@@ -163,10 +174,14 @@ function DrivetrainRowForm({ value, onChange, canRemove, onCopy }) {
     },
     [onChange, value.params]
   );
-  const [label, setLabel] = useState(value.params.label);
-  const [crank, setCrank] = useState(value.params.crankLength.mm);
-  const [bsd, setBsd] = useState(value.params.beadSeatDiameter.mm);
-  const [tire, setTire] = useState(value.params.tireWidth.mm);
+  const [label, setLabel] = useStateWithSyncedDefault(value.params.label);
+  const [crank, setCrank] = useStateWithSyncedDefault(
+    value.params.crankLength.mm
+  );
+  const [bsd, setBsd] = useStateWithSyncedDefault(
+    value.params.beadSeatDiameter.mm
+  );
+  const [tire, setTire] = useStateWithSyncedDefault(value.params.tireWidth.mm);
 
   return (
     <>
@@ -265,16 +280,13 @@ function DrivetrainRowForm({ value, onChange, canRemove, onCopy }) {
 
 function ArrayInput({ value, onChange, ...props }) {
   const [text, setText] = useState(value.join(", "));
-  const prevValue = useRef();
   useEffect(() => {
-    prevValue.current = value;
-  });
-  useEffect(() => {
+    const newText = value.join(", ");
+    const oldText = convert(text) ?? "";
     // Make this component fully controlled but only update the text if the semantic
     // value received from above is different.
-    if (!arrayEq(prevValue.current, value)) {
-      setText(value.join(", "));
-      prevValue.current = value;
+    if (oldText != newText) {
+      setText(newText);
     }
   }, [value]);
 

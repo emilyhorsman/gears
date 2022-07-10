@@ -63,7 +63,8 @@ function useQueryState(value, onChange) {
       return;
     }
 
-    if (prevValue === value) {
+    const prevSerialized = serialize(prevValue);
+    if (serialized === prevSerialized) {
       return;
     }
 
