@@ -10,6 +10,7 @@ import { offset, shift, useFloating, arrow } from "@floating-ui/react-dom";
 const DEFAULT_PARAMS = {
   fronts: [34, 50],
   rears: [11, 12, 13, 15, 17, 19, 22, 25, 28, 32],
+  hubRatios: null,
   beadSeatDiameter: Meters(0.584),
   tireWidth: Meters(0.048),
   crankLength: Meters(0.17),
@@ -53,6 +54,7 @@ function DrivetrainForm({ value, onChange }) {
       <Header>Name</Header>
       <Header>Front</Header>
       <Header>Rear</Header>
+      <Header>Hub Ratios</Header>
       <Header tooltip="Crank Length (mm)">Crank</Header>
       <Header tooltip="Bead Seat Diameter">BSD</Header>
       <Header tooltip="Tire Width">Tire</Header>
@@ -174,6 +176,12 @@ function DrivetrainRowForm({ value, onChange, canRemove, onCopy }) {
     },
     [onChange, value.params]
   );
+  const handleHubRatiosChange = useCallback(
+    (hubRatios) => {
+      return onChange(new Drivetrain({ ...value.params, hubRatios }));
+    },
+    [onChange, value.params]
+  );
   const [label, setLabel] = useStateWithSyncedDefault(value.params.label);
   const [crank, setCrank] = useStateWithSyncedDefault(
     value.params.crankLength.mm
@@ -201,6 +209,7 @@ function DrivetrainRowForm({ value, onChange, canRemove, onCopy }) {
       />
       <ArrayInput value={value.params.fronts} onChange={handleFrontsChange} />
       <ArrayInput value={value.params.rears} onChange={handleRearsChange} />
+      <ArrayInput value={value.params.hubRatios} onChange={handleHubRatiosChange} />
       <input
         type="number"
         min={0}
@@ -279,9 +288,9 @@ function DrivetrainRowForm({ value, onChange, canRemove, onCopy }) {
 }
 
 function ArrayInput({ value, onChange, ...props }) {
-  const [text, setText] = useState(value.join(", "));
+  const [text, setText] = useState(value == null ? "" : value.join(", "));
   useEffect(() => {
-    const newText = value.join(", ");
+    const newText = value == null ? "" : value.join(", ");
     const oldText = convert(text) ?? "";
     // Make this component fully controlled but only update the text if the semantic
     // value received from above is different.
@@ -297,6 +306,7 @@ function ArrayInput({ value, onChange, ...props }) {
       onChange={(event) => setText(event.target.value)}
       onBlur={(event) => {
         const candidate = convert(text);
+        console.log({candidate, text})
         if (candidate != null) {
           onChange(candidate);
         }
@@ -314,7 +324,11 @@ function arrayEq(a, b) {
 }
 
 function convert(text) {
-  const arr = text.match(/\d+/g).map((x) => Number(x));
+  if (!text) {
+    return null;
+  }
+
+  const arr = text.match(/(\d(\.\d+)?)+/g).map((x) => Number(x));
   for (let i = 0; i < arr.length; i++) {
     if (Number.isNaN(arr[i]) || (i > 0 && arr[i] <= arr[i - 1])) {
       return null;

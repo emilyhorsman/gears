@@ -12,6 +12,7 @@ const SAMPLE_DRIVETRAIN = new Drivetrain({
   label: "Bike 0",
   fronts: [30, 46],
   rears: [11, 13, 15, 17, 19, 22, 25, 28, 32, 36],
+  hubRatios: null,
   beadSeatDiameter: Meters(0.584),
   tireWidth: Meters(0.048),
   crankLength: Meters(0.17),

@@ -13,10 +13,10 @@ export function Meters(meters) {
 export class Gear {
   constructor(params) {
     this.params = params;
-    const { front, rear, wheelRadius, crankLength } = params;
+    const { front, rear, hubRatio, wheelRadius, crankLength } = params;
 
     const radiusRatio = wheelRadius.m / crankLength.m;
-    const gearRatio = front / rear;
+    const gearRatio = front / rear * (hubRatio ?? 1);
     this.gearRatio = gearRatio;
     this.gainRatio = radiusRatio * gearRatio;
     // The gain ratio describes how much the bike travels per unit of travel around the crank orbit.
@@ -70,7 +70,7 @@ export class Gear {
 
 export class Drivetrain {
   constructor(params) {
-    const { fronts, rears, beadSeatDiameter, tireWidth, crankLength } = params;
+    const { fronts, rears, hubRatios, beadSeatDiameter, tireWidth, crankLength } = params;
     this.params = params;
     this.rearSize = rears.length;
     const wheelRadius = Meters(beadSeatDiameter.m / 2 + tireWidth.m);
@@ -82,24 +82,23 @@ export class Drivetrain {
           .slice()
           .sort()
           .reverse()
-          .map((rear, rearPos) => {
-            const gear = new Gear({
-              front,
-              rear,
-              wheelRadius,
-              crankLength,
-              frontPos,
-              rearPos,
-              drivetrain: this,
+          .flatMap((rear, rearPos) => {
+            return (hubRatios ?? [1]).slice().sort().map((hubRatio) => {
+              const gear = new Gear({
+                front,
+                rear,
+                hubRatio: hubRatios?.length ? hubRatio : null,
+                wheelRadius,
+                crankLength,
+                frontPos,
+                rearPos,
+                drivetrain: this,
+              });
+              gear.inBestPath = false;
+              return gear;
             });
-            gear.inBestPath = false;
-            return gear;
           });
       });
-
-    this.computeBestPath().forEach((gear) => {
-      gear.inBestPath = true;
-    });
   }
 
   get gearsGroupedByChainring() {
@@ -145,6 +144,7 @@ export class Drivetrain {
       label,
       fronts,
       rears,
+      hubRatios,
       crankLength,
       beadSeatDiameter,
       tireWidth,
@@ -154,6 +154,7 @@ export class Drivetrain {
       l: label,
       f: fronts,
       r: rears,
+      h: hubRatios,
       c: crankLength.m,
       b: beadSeatDiameter.m,
       t: tireWidth.m,
@@ -166,6 +167,7 @@ export class Drivetrain {
       label: obj.l,
       fronts: obj.f,
       rears: obj.r,
+      hubRatios: obj.h,
       crankLength: Meters(obj.c),
       beadSeatDiameter: Meters(obj.b),
       tireWidth: Meters(obj.t),
