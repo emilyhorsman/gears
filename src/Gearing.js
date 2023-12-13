@@ -16,7 +16,7 @@ export class Gear {
     const { front, rear, hubRatio, wheelRadius, crankLength } = params;
 
     const radiusRatio = wheelRadius.m / crankLength.m;
-    const gearRatio = front / rear * (hubRatio ?? 1);
+    const gearRatio = (front / rear) * (hubRatio ?? 1);
     this.gearRatio = gearRatio;
     this.gainRatio = radiusRatio * gearRatio;
     // The gain ratio describes how much the bike travels per unit of travel around the crank orbit.
@@ -58,8 +58,8 @@ export class Gear {
   }
 
   get key() {
-    const { frontPos, rearPos } = this.params;
-    return `${frontPos}_${rearPos}`;
+    const { frontPos, rearPos, hubRatioPos } = this.params;
+    return `${frontPos}_${rearPos}_${hubRatioPos}`;
   }
 
   get drivetrainFrontKey() {
@@ -70,7 +70,14 @@ export class Gear {
 
 export class Drivetrain {
   constructor(params) {
-    const { fronts, rears, hubRatios, beadSeatDiameter, tireWidth, crankLength } = params;
+    const {
+      fronts,
+      rears,
+      hubRatios,
+      beadSeatDiameter,
+      tireWidth,
+      crankLength,
+    } = params;
     this.params = params;
     this.rearSize = rears.length;
     const wheelRadius = Meters(beadSeatDiameter.m / 2 + tireWidth.m);
@@ -78,25 +85,29 @@ export class Drivetrain {
       .slice()
       .sort()
       .map((front, frontPos) => {
-        return rears
+        return (hubRatios ?? [1])
           .slice()
           .sort()
-          .reverse()
-          .flatMap((rear, rearPos) => {
-            return (hubRatios ?? [1]).slice().sort().map((hubRatio) => {
-              const gear = new Gear({
-                front,
-                rear,
-                hubRatio: hubRatios?.length ? hubRatio : null,
-                wheelRadius,
-                crankLength,
-                frontPos,
-                rearPos,
-                drivetrain: this,
+          .map((hubRatio, hubRatioPos) => {
+            return rears
+              .slice()
+              .sort()
+              .reverse()
+              .map((rear, rearPos) => {
+                const gear = new Gear({
+                  front,
+                  rear,
+                  hubRatio: hubRatios?.length ? hubRatio : null,
+                  hubRatioPos,
+                  wheelRadius,
+                  crankLength,
+                  frontPos,
+                  rearPos,
+                  drivetrain: this,
+                });
+                gear.inBestPath = false;
+                return gear;
               });
-              gear.inBestPath = false;
-              return gear;
-            });
           });
       });
   }

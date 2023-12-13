@@ -18,17 +18,22 @@
 
 .labelFront {
   grid-column: 1;
+  text-align: right;
+}
+
+.labelRatio {
+  grid-column: 2;
   box-shadow: 1px 0 0 var(--light-grey);
   text-align: right;
 }
 
 /* lol, border-collapse: collapse equivalent */
-.labelRearRow + .labelFront {
+.labelRearRow + .labelRatio {
   box-shadow: 1px 0 0 var(--light-grey), 0 -1px 0 var(--light-grey);
 }
 
 .labelDrivetrain + .labelRearRow {
-  grid-column: 2;
+  grid-column: 3;
   border-left: 1px solid var(--light-grey);
 }
 

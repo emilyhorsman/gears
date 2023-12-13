@@ -35,16 +35,19 @@ function Drivetrain({ drivetrain, metric }) {
             {rear}t
           </div>
         ))}
-      {drivetrain.byChainring.map((gears) => {
-        const frontTeeth = gears[0].params.front;
-        return (
-          <Fragment key={frontTeeth}>
-            <div className={styles.labelFront}>{frontTeeth}t</div>
-            {gears.map((gear) => (
-              <div key={gear.gainRatio}>{metric.value(gear)}</div>
-            ))}
-          </Fragment>
-        );
+      {drivetrain.byChainring.map((byHubRatio) => {
+        return byHubRatio.map((gears) => {
+          const {front, hubRatio} = gears[0].params;
+          return (
+            <Fragment key={`${front} ${hubRatio}`}>
+              <div className={styles.labelFront}>{front}t</div>
+              <div className={styles.labelRatio}>{hubRatio}</div>
+              {gears.map((gear) => (
+                <div key={gear.gainRatio}>{metric.value(gear)}</div>
+              ))}
+            </Fragment>
+          );
+        });
       })}
     </>
   );
