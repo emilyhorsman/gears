@@ -41,10 +41,12 @@ function Drivetrain({ drivetrain, metric }) {
           return (
             <Fragment key={`${front} ${hubRatio}`}>
               <div className={styles.labelFront}>{front}t</div>
-              <div className={styles.labelRatio}>{hubRatio}</div>
               {gears.map((gear) => (
                 <div key={gear.gainRatio}>{metric.value(gear)}</div>
               ))}
+              {hubRatio && (
+                <div className={styles.labelRatio}>{hubRatio * 100}%</div>
+              )}
             </Fragment>
           );
         });
