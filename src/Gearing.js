@@ -121,7 +121,7 @@ export class Drivetrain {
   }
 
   get gearsGroupedByChainring() {
-    return this.byChainring.flat();
+    return this.byChainring.flat(2);
   }
 
   get sortedGears() {
@@ -134,6 +134,10 @@ export class Drivetrain {
 
   get hardestGear() {
     return this.sortedGears[this.sortedGears.length - 1];
+  }
+
+  get rangePercentage() {
+    return this.ratioExtent[1] / this.ratioExtent[0];
   }
 
   get gears() {

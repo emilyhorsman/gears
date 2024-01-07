@@ -1,6 +1,7 @@
 import styles from "./Showcase.module.css";
 import { metrics } from "./Table";
 import { Fragment, useState } from "react";
+import { PercentageFormatter } from "./Utils";
 
 export default function Showcase({ drivetrains }) {
   const [metric, setMetric] = useState(metrics[0]);
@@ -41,14 +42,14 @@ function Drivetrain({ drivetrain, metric }) {
 
   return (
     <>
-      <div>{drivetrain.params.label}</div>
+      <div>{drivetrain.params.label} — {PercentageFormatter.format(drivetrain.rangePercentage)} range</div>
       <div>
         {" ".repeat(firstColWidth)} {rearCogs.join(" ")}
       </div>
       {rows.map((row) => (
         <div key={row.label}>
           {row.label.padEnd(firstColWidth, " ")}{" "}
-          {row.gears.join(" ")}
+          {row.gears.map(gear => gear.padStart(cogColWidth, " ")).join(" ")}
         </div>
       ))}
       <br />

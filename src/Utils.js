@@ -6,8 +6,8 @@ export const RatioFormatter = new Intl.NumberFormat(undefined, {
 });
 
 export const GearInchesFormatter = new Intl.NumberFormat(undefined, {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
+  maximumSignificantDigits: 3,
+  minimumSignificantDigits: 3,
 });
 
 export const SpeedFormatter = new Intl.NumberFormat(undefined, {
@@ -18,7 +18,7 @@ export const SpeedFormatter = new Intl.NumberFormat(undefined, {
 
 export const PercentageFormatter = new Intl.NumberFormat(undefined, {
   style: "percent",
-  maximumFractionDigits: 1,
+  maximumFractionDigits: 0,
 });
 
 export function usePrevious(value) {
