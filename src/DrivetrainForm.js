@@ -158,6 +158,7 @@ function useStateWithSyncedDefault(upstream) {
     if (value !== upstream) {
       onChange(upstream);
     }
+  // eslint-disable-next-line
   }, [upstream]);
 
   return [value, onChange];
@@ -294,9 +295,11 @@ function ArrayInput({ value, onChange, ...props }) {
     const oldText = convert(text) ?? "";
     // Make this component fully controlled but only update the text if the semantic
     // value received from above is different.
+    // eslint-disable-next-line
     if (oldText != newText) {
       setText(newText);
     }
+  // eslint-disable-next-line
   }, [value]);
 
   return (
@@ -314,13 +317,6 @@ function ArrayInput({ value, onChange, ...props }) {
       {...props}
     />
   );
-}
-
-function arrayEq(a, b) {
-  if (a.length !== b.length) {
-    return false;
-  }
-  return range(0, a.length).every((i) => a[i] === b[i]);
 }
 
 function convert(text) {
