@@ -24,33 +24,34 @@ export default function Showcase({ drivetrains }) {
 }
 
 function Drivetrain({ drivetrain, metric }) {
+  const rows = drivetrain.byChainring.flatMap((byHubRatio) => {
+    return byHubRatio.map((gears) => {
+      return {
+        label: gears[0].rowLabel,
+        gears: gears.map((gear) => metric.value(gear)),
+      };
+    });
+  });
+  const firstColWidth = Math.max(...rows.map((row) => row.label.length));
+  const cogColWidth = Math.max(...rows.flatMap(row => row.gears.map(gear => gear.length)));
+  const rearCogs = drivetrain.params.rears
+    .slice()
+    .reverse()
+    .map((cog) => `${cog}t`.padStart(cogColWidth, ' '));
+
   return (
     <>
-      <div className={styles.labelDrivetrain}>{drivetrain.params.label}</div>
-      {drivetrain.params.rears
-        .slice()
-        .reverse()
-        .map((rear) => (
-          <div key={rear} className={styles.labelRearRow}>
-            {rear}t
-          </div>
-        ))}
-      {drivetrain.byChainring.map((byHubRatio) => {
-        return byHubRatio.map((gears) => {
-          const {front, hubRatio} = gears[0].params;
-          return (
-            <Fragment key={`${front} ${hubRatio}`}>
-              <div className={styles.labelFront}>{front}t</div>
-              {gears.map((gear) => (
-                <div key={gear.gainRatio}>{metric.value(gear)}</div>
-              ))}
-              {hubRatio && (
-                <div className={styles.labelRatio}>{hubRatio * 100}%</div>
-              )}
-            </Fragment>
-          );
-        });
-      })}
+      <div>{drivetrain.params.label}</div>
+      <div>
+        {" ".repeat(firstColWidth)} {rearCogs.join(" ")}
+      </div>
+      {rows.map((row) => (
+        <div key={row.label}>
+          {row.label.padEnd(firstColWidth, " ")}{" "}
+          {row.gears.join(" ")}
+        </div>
+      ))}
+      <br />
     </>
   );
 }

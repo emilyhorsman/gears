@@ -52,6 +52,14 @@ export class Gear {
     return this.multipleHarderThan(this.params.drivetrain.easiestGear);
   }
 
+  get rowLabel() {
+    const {front, hubRatio} = this.params;
+    if (hubRatio) {
+      return `${front}t ${hubRatio * 100}%`;
+    }
+    return `${front}t`;
+  }
+
   get label() {
     const { front, rear } = this.params;
     return `${front}/${rear}t`;
