@@ -158,7 +158,7 @@ function useStateWithSyncedDefault(upstream) {
     if (value !== upstream) {
       onChange(upstream);
     }
-  // eslint-disable-next-line
+    // eslint-disable-next-line
   }, [upstream]);
 
   return [value, onChange];
@@ -210,7 +210,10 @@ function DrivetrainRowForm({ value, onChange, canRemove, onCopy }) {
       />
       <ArrayInput value={value.params.fronts} onChange={handleFrontsChange} />
       <ArrayInput value={value.params.rears} onChange={handleRearsChange} />
-      <ArrayInput value={value.params.hubRatios} onChange={handleHubRatiosChange} />
+      <ArrayInput
+        value={value.params.hubRatios}
+        onChange={handleHubRatiosChange}
+      />
       <input
         type="number"
         min={0}
@@ -299,7 +302,7 @@ function ArrayInput({ value, onChange, ...props }) {
     if (oldText != newText) {
       setText(newText);
     }
-  // eslint-disable-next-line
+    // eslint-disable-next-line
   }, [value]);
 
   return (
@@ -309,7 +312,7 @@ function ArrayInput({ value, onChange, ...props }) {
       onChange={(event) => setText(event.target.value)}
       onBlur={(event) => {
         const candidate = convert(text);
-        console.log({candidate, text})
+        console.log({ candidate, text });
         if (candidate != null) {
           onChange(candidate);
         }

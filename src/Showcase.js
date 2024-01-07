@@ -47,7 +47,8 @@ function Drivetrain({ drivetrain, metric }) {
       <div>
         {drivetrain.params.label} —{" "}
         {PercentageFormatter.format(drivetrain.rangePercentage)} range,{" "}
-        {SpeedFormatter.format(drivetrain.easiestGear.perHourSpeedAtRPM(60).km)} to{" "}
+        {SpeedFormatter.format(drivetrain.easiestGear.perHourSpeedAtRPM(60).km)}{" "}
+        to{" "}
         {SpeedFormatter.format(drivetrain.hardestGear.perHourSpeedAtRPM(90).km)}
       </div>
       <div>
