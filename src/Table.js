@@ -2,13 +2,13 @@ import { RatioFormatter, GearInchesFormatter } from "./Utils";
 
 export const metrics = [
   {
-    label: "Gain Ratio",
-    value: (gear) => RatioFormatter.format(gear.gainRatio),
-  },
-  {
     label: "Gear Inches",
     value: (gear) => GearInchesFormatter.format(gear.gearInches),
   },
+  {
+    label: "Gain Ratio",
+    value: (gear) => RatioFormatter.format(gear.gainRatio),
+  },  
 ];
 
 function Table({ drivetrain, valueFunc = metrics[0].value }) {
